@@ -1,0 +1,40 @@
+{
+  "name": "gzhegow/mailer",
+  "type": "library",
+  "version": "1.0.0",
+  "license": "MIT",
+
+  "authors": [
+    {
+      "name": "gzhegow",
+      "email": "6562680@gmail.com"
+    }
+  ],
+
+  "require": {
+    "php": "^7.2",
+
+    "symfony/mailer": "~5.0",
+
+    "gzhegow/lib": "~1.0"
+  },
+  "suggest": {
+    "ext-ctype": "*",
+    "ext-curl": "*"
+  },
+
+  "autoload": {
+    "psr-4": {
+      "Gzhegow\\Mailer\\": "src/"
+    }
+  },
+
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+
+  "config": {
+    "optimize-autoloader": true,
+
+    "sort-packages": false
+  }
+}
