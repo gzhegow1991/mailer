@@ -4,8 +4,10 @@ namespace Gzhegow\Mailer\Driver\Email;
 
 use Symfony\Component\Mailer\Mailer;
 use Gzhegow\Mailer\Struct\GenericMessage;
+use Symfony\Component\Mime\Part\DataPart as SymfonyDataPart;
 use Gzhegow\Mailer\Driver\DriverInterface;
 use Gzhegow\Mailer\Exception\RuntimeException;
+use Symfony\Component\Mime\Email as SymfonyEmail;
 use Symfony\Component\Mailer\Transport\Dsn as SymfonyDsn;
 use Symfony\Component\Mailer\Transport\NullTransportFactory;
 use Symfony\Component\Mailer\Transport\NativeTransportFactory;
@@ -61,20 +63,70 @@ class EmailDriver implements DriverInterface
 
     public function sendNow(GenericMessage $message, $to = null, $context = null) : DriverInterface
     {
-        $mailerEmailFrom = $this->config->symfonyMailerEmailFrom;
+        $isDebug = $this->config->isDebug;
 
-        $symfonyEmail = $message->getSymfonyEmail();
+        $symfonyEmail = new SymfonyEmail();
+
+        if (null !== $message->headers) {
+            $symfonyEmail->setHeaders($message->headers);
+        }
+
+        if (null !== $message->body) {
+            $symfonyEmail->setBody($message->body);
+
+        } else {
+            if (null !== $message->subject) {
+                $symfonyEmail->subject($message->subject);
+            }
+
+            if (null !== $message->text) {
+                $textCharsetArgs = [];
+
+                if (null !== $message->textCharset) {
+                    $textCharsetArgs[] = $message->textCharset;
+                }
+
+                $symfonyEmail->text($message->text, ...$textCharsetArgs);
+            }
+
+            if (null !== $message->html) {
+                $htmlCharsetArgs = [];
+
+                if (null !== $message->htmlCharset) {
+                    $htmlCharsetArgs[] = $message->htmlCharset;
+                }
+
+                $symfonyEmail->html($message->html, ...$htmlCharsetArgs);
+            }
+
+            if (null !== $message->attachments) {
+                foreach ( $message->getAttachments() as $attachment ) {
+                    if ($attachment instanceof SymfonyDataPart) {
+                        $symfonyEmail->attachPart($attachment);
+                    }
+                }
+            }
+        }
 
         if (! $symfonyEmail->getFrom()) {
+            $mailerEmailFrom = $this->config->symfonyMailerEmailFrom;
+
             if (null !== $mailerEmailFrom) {
                 $symfonyEmail->from($mailerEmailFrom);
             }
         }
 
-        if (! $symfonyEmail->getTo()) {
-            $_to = (array) $to;
+        if ($isDebug) {
+            $mailerEmailTo = $this->config->symfonyMailerEmailToIfDebug;
 
-            $symfonyEmail->to(...$_to);
+            $symfonyEmail->to($mailerEmailTo);
+
+        } else {
+            if (! $symfonyEmail->getTo()) {
+                $_to = (array) $to;
+
+                $symfonyEmail->to(...$_to);
+            }
         }
 
         $this->symfonyMailer = $this->newSymfonyMailer();
@@ -92,23 +144,21 @@ class EmailDriver implements DriverInterface
 
     protected function newSymfonyMailer() : SymfonyMailerInterface
     {
-        $filesystemTransportDirectory = $this->config->symfonyFilesystemTransportDirectory;
+        $filesystemTransportDirectory = null
+            ?? $this->config->symfonyMailerFilesystemTransportDirectory
+            ?? __DIR__ . '/var/email';
 
-        $isDebug = $this->config->isDebug;
-
-        $mailerDsn = $isDebug
-            ? 'filesystem://default?directory=' . $filesystemTransportDirectory
-            : $this->config->symfonyMailerDsn;
+        $mailerDsn = $this->config->symfonyMailerDsn;
 
         $dsn = SymfonyDsn::fromString($mailerDsn);
 
         $transportParser = new SymfonyTransportParser([
-            new FilesystemTransportFactory($filesystemTransportDirectory),
-            //
-            new NullTransportFactory(),
-            new SendmailTransportFactory(),
             new EsmtpTransportFactory(),
             new NativeTransportFactory(),
+            new SendmailTransportFactory(),
+            //
+            new FilesystemTransportFactory($filesystemTransportDirectory),
+            new NullTransportFactory(),
         ]);
 
         $transport = $transportParser->fromDsnObject($dsn);

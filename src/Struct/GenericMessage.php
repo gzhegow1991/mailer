@@ -14,6 +14,39 @@ class GenericMessage implements \Serializable
      */
     public $symfonyEmail;
 
+    /**
+     * @var string
+     */
+    public $subject;
+
+    /**
+     * @var string
+     */
+    public $text;
+    /**
+     * @var string
+     */
+    public $textCharset;
+    /**
+     * @var string
+     */
+    public $html;
+    /**
+     * @var string
+     */
+    public $htmlCharset;
+
+    public $attachments;
+
+    /**
+     * @var mixed
+     */
+    public $headers;
+    /**
+     * @var mixed
+     */
+    public $body;
+
 
     private function __construct()
     {
@@ -87,7 +120,17 @@ class GenericMessage implements \Serializable
         }
 
         $instance = new GenericMessage();
-        $instance->symfonyEmail = $from;
+
+        $instance->subject = $from->getSubject();
+
+        $instance->text = $from->getTextBody();
+        $instance->textCharset = $from->getTextCharset();
+        $instance->html = $from->getHtmlBody();
+        $instance->htmlCharset = $from->getHtmlCharset();
+
+        $instance->attachments = $from->getAttachments();
+
+        $instance->headers = $from->getHeaders();
 
         return $instance;
     }
@@ -128,13 +171,11 @@ class GenericMessage implements \Serializable
             );
         }
 
-        $symfonyEmail = new SymfonyEmail();
-        if (null !== $subject) $symfonyEmail->subject($subject);
-        if ($hasText) $symfonyEmail->text($text);
-        if ($hasHtml) $symfonyEmail->html($html);
-
         $instance = new GenericMessage();
-        $instance->symfonyEmail = $symfonyEmail;
+
+        if (null !== $subject) $instance->subject = $subject;
+        if ($hasText) $instance->text = $text;
+        if ($hasHtml) $instance->html = $html;
 
         return $instance;
     }
@@ -152,11 +193,9 @@ class GenericMessage implements \Serializable
             );
         }
 
-        $symfonyEmail = new SymfonyEmail();
-        $symfonyEmail->text($text);
-
         $instance = new GenericMessage();
-        $instance->symfonyEmail = $symfonyEmail;
+
+        $instance->text = $text;
 
         return $instance;
     }
@@ -195,8 +234,35 @@ class GenericMessage implements \Serializable
     }
 
 
-    public function getSymfonyEmail() : SymfonyEmail
+    public function getSubject() : string
     {
-        return $this->symfonyEmail;
+        return $this->subject;
+    }
+
+
+    public function getText() : ?string
+    {
+        return $this->text;
+    }
+
+    public function getTextCharset() : ?string
+    {
+        return $this->textCharset;
+    }
+
+    public function getHtml() : ?string
+    {
+        return $this->html;
+    }
+
+    public function getHtmlCharset() : ?string
+    {
+        return $this->htmlCharset;
+    }
+
+
+    public function getAttachments() : array
+    {
+        return $this->attachments;
     }
 }

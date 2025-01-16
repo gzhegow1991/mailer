@@ -10,7 +10,8 @@ use Gzhegow\Lib\Config\AbstractConfig;
  * @property bool   $isDebug
  * @property string $symfonyMailerDsn
  * @property string $symfonyMailerEmailFrom
- * @property string $symfonyFilesystemTransportDirectory
+ * @property string $symfonyMailerEmailToIfDebug
+ * @property string $symfonyMailerFilesystemTransportDirectory
  */
 class EmailDriverConfig extends AbstractConfig
 {
@@ -29,7 +30,11 @@ class EmailDriverConfig extends AbstractConfig
     /**
      * @var string
      */
-    protected $symfonyFilesystemTransportDirectory;
+    protected $symfonyMailerEmailToIfDebug;
+    /**
+     * @var string
+     */
+    protected $symfonyMailerFilesystemTransportDirectory;
 
 
     public function validate() : void
@@ -42,12 +47,22 @@ class EmailDriverConfig extends AbstractConfig
             ?? $theParse->string_not_empty($this->symfonyMailerDsn)
             ?? Lib::php()->throw([ 'The `symfonyMailerDsn` should be non-empty string', $this ]);
 
-        $this->symfonyMailerEmailFrom = null
-            ?? (filter_var($this->symfonyMailerEmailFrom, FILTER_VALIDATE_EMAIL) ? $this->symfonyMailerEmailFrom : null)
-            ?? Lib::php()->throw([ 'The `symfonyMailerEmailFrom` should be valid email address', $this ]);
+        if (null !== $this->symfonyMailerEmailFrom) {
+            $this->symfonyMailerEmailFrom = null
+                ?? (filter_var($this->symfonyMailerEmailFrom, FILTER_VALIDATE_EMAIL) ? $this->symfonyMailerEmailFrom : null)
+                ?? Lib::php()->throw([ 'The `symfonyMailerEmailFrom` should be valid email address', $this ]);
+        }
 
-        $this->symfonyFilesystemTransportDirectory = null
-            ?? $theParse->dirpath_realpath($this->symfonyFilesystemTransportDirectory)
-            ?? Lib::php()->throw([ 'The `symfonyFilesystemTransportDirectory` should be existing directory', $this ]);
+        if (null !== $this->symfonyMailerEmailToIfDebug) {
+            $this->symfonyMailerEmailToIfDebug = null
+                ?? (filter_var($this->symfonyMailerEmailToIfDebug, FILTER_VALIDATE_EMAIL) ? $this->symfonyMailerEmailToIfDebug : null)
+                ?? Lib::php()->throw([ 'The `symfonyMailerEmailToIfDebug` should be valid email address', $this ]);
+        }
+
+        if (null !== $this->symfonyMailerFilesystemTransportDirectory) {
+            $this->symfonyMailerFilesystemTransportDirectory = null
+                ?? $theParse->dirpath_realpath($this->symfonyMailerFilesystemTransportDirectory)
+                ?? Lib::php()->throw([ 'The `symfonyFilesystemTransportDirectory` should be existing directory', $this ]);
+        }
     }
 }

@@ -90,13 +90,7 @@ $config->configure(function (\Gzhegow\Mailer\MailerConfig $config) {
 
     // \Gzhegow\Mailer\Driver\Email\EmailDriver::class
     $config->emailDriver->isDebug = true;
-    $config->emailDriver->symfonyMailerDsn = 'filesystem://default?directory=' . $emailDriverDir;
-    $config->emailDriver->symfonyMailerEmailFrom = 'email@example.com';
-    $config->emailDriver->symfonyFilesystemTransportDirectory = $emailDriverDir;
-
-    // > gzhegow, 2025.01.15, it still works, same with Google - no, "security reasons"
-    // $config->emailDriver->symfonyMailerDsn = 'smtps://{yourlogin}%40yandex.by:{yourpassword}@smtp.yandex.ru:465';
-    // $config->emailDriver->symfonyMailerEmailFrom = '{yourlogin}@yandex.by';
+    $config->emailDriver->symfonyMailerFilesystemTransportDirectory = $emailDriverDir;
 
     // \Gzhegow\Mailer\Driver\Phone\SmsDriver::class
     $config->smsDriver->isDebug = true;
@@ -106,12 +100,23 @@ $config->configure(function (\Gzhegow\Mailer\MailerConfig $config) {
     if (file_exists($iniFile = __DIR__ . '/secret.ini')) {
         $ini = parse_ini_file($iniFile, true);
 
+        // > gzhegow, 2025.01.15, это всё ещё работает, в отличие от Google, который "по соображениям безопасности" крутит как хочет
+        // 'smtps://{yourlogin}%40yandex.by:{yourpassword}@smtp.yandex.ru:465'
+        $config->emailDriver->symfonyMailerDsn = $ini[ 'emailDriver' ][ 'symfonyMailerDsn' ];
+        // '{yourlogin}@yandex.by'
+        $config->emailDriver->symfonyMailerEmailFrom = $ini[ 'emailDriver' ][ 'symfonyMailerEmailFrom' ];
+        $config->emailDriver->symfonyMailerEmailToIfDebug = $ini[ 'emailDriver' ][ 'symfonyMailerEmailToIfDebug' ];
+
         $config->telegramDriver->telegramBotToken = $ini[ 'telegramDriver' ][ 'telegramBotToken' ];
         $config->telegramDriver->telegramBotUsername = $ini[ 'telegramDriver' ][ 'telegramBotUsername' ];
         $config->telegramDriver->telegramChatIdIfDebug = $ini[ 'telegramDriver' ][ 'telegramChatIdIfDebug' ];
 
     } else {
-        $config->telegramDriver->isDebug = true;
+        $config->emailDriver->symfonyMailerDsn = 'filesystem://default?directory=' . $emailDriverDir;
+        $config->emailDriver->symfonyMailerEmailFrom = 'email@example.com';
+        $config->emailDriver->symfonyMailerEmailToIfDebug = 'email@example.com';
+        $config->emailDriver->symfonyMailerFilesystemTransportDirectory = $emailDriverDir;
+
         $config->telegramDriver->telegramBotToken = '0000000000:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
         $config->telegramDriver->telegramBotUsername = '{yourbot}_bot';
         $config->telegramDriver->telegramChatIdIfDebug = '0000000000';
@@ -144,7 +149,7 @@ $fn = function () use ($mailer) {
     $symfonyEmail->subject('Hello!');
     $symfonyEmail->text('[ EMAIL ] Hello, User!');
     $symfonyEmail->html('<b>[ EMAIL ] Hello, User!</b>');
-    $emailDriver = $mailer->sendNowBy(\Gzhegow\Mailer\Driver\Email\EmailDriver::class, $symfonyEmail, $emailTo = '6562680@gmail.com');
+    $emailDriver = $mailer->sendNowBy(\Gzhegow\Mailer\Driver\Email\EmailDriver::class, $symfonyEmail, $emailTo = 'email@example.com');
     _dump($emailDriver);
 
     // > отправляем сообщение по SMS (драйвер следует наследовать и реализовать с использованием собственной АТС или сервиса отсылки SMS)
@@ -152,7 +157,7 @@ $fn = function () use ($mailer) {
     _dump($smsDriver);
 
     // > отправляем сообщение в телеграм
-    $telegramDriver = $mailer->sendNowBy(\Gzhegow\Mailer\Driver\Social\Telegram\TelegramDriver::class, '[ Telegram ] Hello, User!', $telegramChatId = '6436411896');
+    $telegramDriver = $mailer->sendNowBy(\Gzhegow\Mailer\Driver\Social\Telegram\TelegramDriver::class, '[ Telegram ] Hello, User!', $telegramChatId = '0000000000');
     _dump($telegramDriver);
 
     // > очищаем папку перехваченных в режиме isDebug сообщений Email

@@ -38,9 +38,7 @@ class TelegramDriver implements DriverInterface
         $isDebug = $contextArray[ 'isDebug' ] ?? $this->config->isDebug;
         $isDebug = (bool) $isDebug;
 
-        $symfonyEmail = $message->getSymfonyEmail();
-
-        $messageText = $symfonyEmail->getTextBody();
+        $messageText = $message->getText();
 
         if ($isDebug) {
             $chatId = null
