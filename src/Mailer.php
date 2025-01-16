@@ -2,6 +2,7 @@
 
 namespace Gzhegow\Mailer;
 
+use Gzhegow\Mailer\Struct\GenericMessage;
 use Gzhegow\Mailer\Driver\DriverInterface;
 use Symfony\Component\Mime\Email as SymfonyEmail;
 
@@ -21,8 +22,8 @@ class Mailer
 
 
     /**
-     * @param class-string<T>|DriverInterface $driver
-     * @param string|SymfonyEmail             $message
+     * @param class-string<T>|DriverInterface          $driver
+     * @param GenericMessage|string|array|SymfonyEmail $message
      */
     public static function sendBy($driver, $message, $to = null, $context = null) : DriverInterface
     {
@@ -30,8 +31,8 @@ class Mailer
     }
 
     /**
-     * @param class-string<T>|DriverInterface $driver
-     * @param string|SymfonyEmail             $message
+     * @param class-string<T>|DriverInterface          $driver
+     * @param GenericMessage|string|array|SymfonyEmail $message
      */
     public static function sendImmediateBy($driver, $message, $to = null, $context = null) : DriverInterface
     {
