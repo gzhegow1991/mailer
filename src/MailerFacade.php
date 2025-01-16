@@ -42,6 +42,12 @@ class MailerFacade implements MailerFacadeInterface
     }
 
 
+    public function getType() : MailerTypeInterface
+    {
+        return $this->type;
+    }
+
+
     /**
      * @param class-string<T>|T $driver
      *

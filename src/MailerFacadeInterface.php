@@ -11,6 +11,9 @@ use Symfony\Component\Mime\Email as SymfonyEmail;
  */
 interface MailerFacadeInterface
 {
+    public function getType() : MailerTypeInterface;
+
+
     /**
      * @param class-string<T>|T $driver
      *
