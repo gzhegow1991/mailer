@@ -12,9 +12,6 @@ use Symfony\Component\Mime\Email as SymfonyEmail;
  */
 interface MailerFacadeInterface
 {
-    public function getType() : MailerTypeInterface;
-
-
     /**
      * @param class-string<T>|T $driver
      *
@@ -38,4 +35,10 @@ interface MailerFacadeInterface
      * @return T
      */
     public function sendNowBy($driver, $message, $to = null, $context = null) : DriverInterface;
+
+
+    /**
+     * @param GenericMessage|string|array|SymfonyEmail $message
+     */
+    public function interpolateMessage($message, array $placeholders = null, $context = null) : GenericMessage;
 }

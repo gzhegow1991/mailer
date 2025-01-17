@@ -43,12 +43,6 @@ class MailerFacade implements MailerFacadeInterface
     }
 
 
-    public function getType() : MailerTypeInterface
-    {
-        return $this->type;
-    }
-
-
     /**
      * @param class-string<T>|T $driver
      *
@@ -60,9 +54,9 @@ class MailerFacade implements MailerFacadeInterface
             ?? $this->type->parseDriver($driver, $context)
             ?? Lib::php()->throw([ 'Unable to create GenericDriver', $driver ]);
 
-        $theDriver = $this->factory->newDriver($genericDriver, $this->config);
+        $driverObject = $this->factory->newDriver($genericDriver, $this->config);
 
-        return $theDriver;
+        return $driverObject;
     }
 
 
@@ -102,5 +96,40 @@ class MailerFacade implements MailerFacadeInterface
         $theDriver = $theDriver->sendNow($genericMessage, $to, $context);
 
         return $theDriver;
+    }
+
+
+    /**
+     * @param GenericMessage|string|array|SymfonyEmail $message
+     */
+    public function interpolateMessage($message, array $placeholders = null, $context = null) : GenericMessage
+    {
+        $placeholders = $placeholders ?? [];
+
+        $theInterpolator = Lib::str()->interpolator();
+
+        $genericMessage = null
+            ?? $this->type->parseMessage($message, $context)
+            ?? Lib::php()->throw([ 'Unable to create GenericMessage', $message ]);
+
+        if (null !== $genericMessage->subject) {
+            $subject = $theInterpolator->interpolate($genericMessage->subject, $placeholders);
+
+            $genericMessage->subject = $subject;
+        }
+
+        if (null !== $genericMessage->text) {
+            $text = $theInterpolator->interpolate($genericMessage->text, $placeholders);
+
+            $genericMessage->text = $text;
+        }
+
+        if (null !== $genericMessage->html) {
+            $html = $theInterpolator->interpolate($genericMessage->html, $placeholders);
+
+            $genericMessage->html = $html;
+        }
+
+        return $genericMessage;
     }
 }

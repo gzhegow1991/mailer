@@ -157,20 +157,29 @@ $fn = function () use ($mailer) {
     _dump('TEST 1');
     echo PHP_EOL;
 
+    $placeholders = [
+        'name' => 'User',
+    ];
+
     // > отправляем сообщение по электронной почте
     $symfonyEmail = new \Symfony\Component\Mime\Email();
     $symfonyEmail->subject('Hello!');
-    $symfonyEmail->text('[ EMAIL ] Hello, User!');
-    $symfonyEmail->html('<b>[ EMAIL ] Hello, User!</b>');
-    $emailDriver = $mailer->sendNowBy(\Gzhegow\Mailer\Driver\Email\EmailDriver::class, $symfonyEmail, $emailTo = 'email@example.com');
+    $symfonyEmail->text('[ EMAIL ] Hello, {{name}}!');
+    $symfonyEmail->html('<b>[ EMAIL ] Hello, {{name}}!</b>');
+    $message = $mailer->interpolateMessage($symfonyEmail, $placeholders);
+    $emailDriver = $mailer->sendNowBy(\Gzhegow\Mailer\Driver\Email\EmailDriver::class, $message, $emailTo = 'email@example.com');
     _dump($emailDriver);
 
     // > отправляем сообщение по SMS (драйвер следует наследовать и реализовать с использованием собственной АТС или сервиса отсылки SMS)
-    $smsDriver = $mailer->sendNowBy(\Gzhegow\Mailer\Driver\Phone\SmsDriver::class, '[ SMS ] Hello, User!', $mobilePhoneFake = '+375990000000');
+    $text = '[ SMS ] Hello, {{name}}!';
+    $message = $mailer->interpolateMessage($text, $placeholders);
+    $smsDriver = $mailer->sendNowBy(\Gzhegow\Mailer\Driver\Phone\SmsDriver::class, $message, $mobilePhoneFake = '+375990000000');
     _dump($smsDriver);
 
     // > отправляем сообщение в телеграм
-    $telegramDriver = $mailer->sendNowBy(\Gzhegow\Mailer\Driver\Social\Telegram\TelegramDriver::class, '[ Telegram ] Hello, User!', $telegramChatId = '0000000000');
+    $text = '[ Telegram ] Hello, {{name}}!';
+    $message = $mailer->interpolateMessage($text, $placeholders);
+    $telegramDriver = $mailer->sendNowBy(\Gzhegow\Mailer\Driver\Social\Telegram\TelegramDriver::class, $message, $telegramChatId = '0000000000');
     _dump($telegramDriver);
 
     // > очищаем папку перехваченных в режиме isDebug сообщений Email
