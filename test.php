@@ -97,6 +97,7 @@ $config->configure(function (\Gzhegow\Mailer\MailerConfig $config) {
 
     // \Gzhegow\Mailer\Driver\Social\Telegram\TelegramDriver::class
     $config->telegramDriver->isDebug = true;
+
     if (file_exists($iniFile = __DIR__ . '/secret.ini')) {
         $ini = parse_ini_file($iniFile, true);
 
@@ -115,7 +116,6 @@ $config->configure(function (\Gzhegow\Mailer\MailerConfig $config) {
         $config->emailDriver->symfonyMailerDsn = 'filesystem://default?directory=' . $emailDriverDir;
         $config->emailDriver->symfonyMailerEmailFrom = 'email@example.com';
         $config->emailDriver->symfonyMailerEmailToIfDebug = 'email@example.com';
-        $config->emailDriver->symfonyMailerFilesystemTransportDirectory = $emailDriverDir;
 
         $config->telegramDriver->telegramBotToken = '0000000000:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
         $config->telegramDriver->telegramBotUsername = '{yourbot}_bot';
