@@ -25,7 +25,7 @@ class Mailer
      * @param class-string<T>|DriverInterface          $driver
      * @param GenericMessage|string|array|SymfonyEmail $message
      */
-    public static function sendBy($driver, $message, $to = null, $context = null) : DriverInterface
+    public static function sendLaterBy($driver, $message, $to = null, $context = null) : DriverInterface
     {
         return static::$facade->sendLaterBy($driver, $message, $to, $context);
     }
@@ -34,9 +34,18 @@ class Mailer
      * @param class-string<T>|DriverInterface          $driver
      * @param GenericMessage|string|array|SymfonyEmail $message
      */
-    public static function sendImmediateBy($driver, $message, $to = null, $context = null) : DriverInterface
+    public static function sendNowBy($driver, $message, $to = null, $context = null) : DriverInterface
     {
         return static::$facade->sendNowBy($driver, $message, $to, $context);
+    }
+
+
+    /**
+     * @param GenericMessage|string|array|SymfonyEmail $message
+     */
+    public static function interpolateMessage($message, array $placeholders = null, $context = null) : GenericMessage
+    {
+        return static::$facade->interpolateMessage($message, $placeholders, $context);
     }
 
 
