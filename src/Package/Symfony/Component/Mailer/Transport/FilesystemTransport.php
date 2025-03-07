@@ -37,7 +37,7 @@ class FilesystemTransport extends AbstractTransport implements
 
         $dirpath = null
             ?? $theParse->dirpath($directory)
-            ?? Lib::php()->throw([ 'The `directory` should be valid directory path: ' . $directory, $directory ]);
+            ?? Lib::throw([ 'The `directory` should be valid directory path: ' . $directory, $directory ]);
 
         $this->directory = $dirpath;
     }

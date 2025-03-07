@@ -22,7 +22,7 @@ class FilesystemTransportFactory implements TransportFactoryInterface
 
         $_directoryDefault = null
             ?? $theParse->dirpath_realpath($directoryDefault)
-            ?? Lib::php()->throw([ 'Directory is missing: ' . $directoryDefault, $directoryDefault ]);
+            ?? Lib::throw([ 'Directory is missing: ' . $directoryDefault, $directoryDefault ]);
 
         $this->directoryDefault = $_directoryDefault;
     }

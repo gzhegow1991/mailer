@@ -6,9 +6,9 @@ namespace Gzhegow\Mailer;
 interface MailerAwareInterface
 {
     /**
-     * @param null|MailerFacadeInterface $mailer
+     * @param null|MailerInterface $mailer
      *
      * @return void
      */
-    public function setMailer(?MailerFacadeInterface $mailer) : void;
+    public function setMailer(?MailerInterface $mailer) : void;
 }

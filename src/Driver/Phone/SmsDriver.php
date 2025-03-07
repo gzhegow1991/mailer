@@ -76,11 +76,11 @@ class SmsDriver implements DriverInterface
 
         $phone = substr($_tel, 1);
 
-        if (false === ctype_digit($phone)) {
+        if (false === Lib::type()->ctype_digit($_phone, $phone)) {
             return null;
         }
 
-        if (strlen($phone) > 15) {
+        if (strlen($_phone) > 15) {
             return null;
         }
 

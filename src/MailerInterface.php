@@ -10,7 +10,7 @@ use Symfony\Component\Mime\Email as SymfonyEmail;
 /**
  * @template-covariant T of DriverInterface
  */
-interface MailerFacadeInterface
+interface MailerInterface
 {
     /**
      * @param class-string<T>|T $driver

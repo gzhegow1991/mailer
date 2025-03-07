@@ -43,12 +43,12 @@ class TelegramDriver implements DriverInterface
         if ($isDebug) {
             $chatId = null
                 ?? $theParse->string_not_empty($this->config->telegramChatIdIfDebug)
-                ?? Lib::php()->throw([ 'The `config.telegram.telegramChatIdIfDebug` should be non-empty string' ]);
+                ?? Lib::throw([ 'The `config.telegram.telegramChatIdIfDebug` should be non-empty string' ]);
 
         } else {
             $chatId = null
                 ?? $theParse->string_not_empty($to)
-                ?? Lib::php()->throw([ 'The `to` should be non-empty string' ]);
+                ?? Lib::throw([ 'The `to` should be non-empty string' ]);
         }
 
         $this->apiSendMessage($chatId, $messageText, $context);

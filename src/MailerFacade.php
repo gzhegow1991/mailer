@@ -11,7 +11,7 @@ use Symfony\Component\Mime\Email as SymfonyEmail;
 /**
  * @template-covariant T of DriverInterface
  */
-class MailerFacade implements MailerFacadeInterface
+class MailerFacade implements MailerInterface
 {
     /**
      * @var MailerFactoryInterface
@@ -52,7 +52,7 @@ class MailerFacade implements MailerFacadeInterface
     {
         $genericDriver = null
             ?? $this->type->parseDriver($driver, $context)
-            ?? Lib::php()->throw([ 'Unable to create GenericDriver', $driver ]);
+            ?? Lib::throw([ 'Unable to create GenericDriver', $driver ]);
 
         $driverObject = $this->factory->newDriver($genericDriver, $this->config);
 
@@ -70,7 +70,7 @@ class MailerFacade implements MailerFacadeInterface
     {
         $genericMessage = null
             ?? $this->type->parseMessage($message, $context)
-            ?? Lib::php()->throw([ 'Unable to create GenericMessage', $driver ]);
+            ?? Lib::throw([ 'Unable to create GenericMessage', $driver ]);
 
         $theDriver = $this->getDriver($driver);
 
@@ -89,7 +89,7 @@ class MailerFacade implements MailerFacadeInterface
     {
         $genericMessage = null
             ?? $this->type->parseMessage($message, $context)
-            ?? Lib::php()->throw([ 'Unable to create GenericMessage', $driver ]);
+            ?? Lib::throw([ 'Unable to create GenericMessage', $driver ]);
 
         $theDriver = $this->getDriver($driver);
 
@@ -110,7 +110,7 @@ class MailerFacade implements MailerFacadeInterface
 
         $genericMessage = null
             ?? $this->type->parseMessage($message, $context)
-            ?? Lib::php()->throw([ 'Unable to create GenericMessage', $message ]);
+            ?? Lib::throw([ 'Unable to create GenericMessage', $message ]);
 
         if (null !== $genericMessage->subject) {
             $subject = $theInterpolator->interpolate($genericMessage->subject, $placeholders);

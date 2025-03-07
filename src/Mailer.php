@@ -49,7 +49,7 @@ class Mailer
     }
 
 
-    public static function setFacade(MailerFacadeInterface $facade) : ?MailerFacadeInterface
+    public static function setFacade(MailerInterface $facade) : ?MailerInterface
     {
         $last = static::$facade;
 
@@ -59,7 +59,7 @@ class Mailer
     }
 
     /**
-     * @var MailerFacadeInterface
+     * @var MailerInterface
      */
     protected static $facade;
 }

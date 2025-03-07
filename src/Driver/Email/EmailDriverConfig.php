@@ -45,24 +45,24 @@ class EmailDriverConfig extends AbstractConfig
 
         $this->symfonyMailerDsn = null
             ?? $theParse->string_not_empty($this->symfonyMailerDsn)
-            ?? Lib::php()->throw([ 'The `symfonyMailerDsn` should be non-empty string', $this ]);
+            ?? Lib::throw([ 'The `symfonyMailerDsn` should be non-empty string', $this ]);
 
         if (null !== $this->symfonyMailerEmailFrom) {
             $this->symfonyMailerEmailFrom = null
                 ?? (filter_var($this->symfonyMailerEmailFrom, FILTER_VALIDATE_EMAIL) ? $this->symfonyMailerEmailFrom : null)
-                ?? Lib::php()->throw([ 'The `symfonyMailerEmailFrom` should be valid email address', $this ]);
+                ?? Lib::throw([ 'The `symfonyMailerEmailFrom` should be valid email address', $this ]);
         }
 
         if (null !== $this->symfonyMailerEmailToIfDebug) {
             $this->symfonyMailerEmailToIfDebug = null
                 ?? (filter_var($this->symfonyMailerEmailToIfDebug, FILTER_VALIDATE_EMAIL) ? $this->symfonyMailerEmailToIfDebug : null)
-                ?? Lib::php()->throw([ 'The `symfonyMailerEmailToIfDebug` should be valid email address', $this ]);
+                ?? Lib::throw([ 'The `symfonyMailerEmailToIfDebug` should be valid email address', $this ]);
         }
 
         if (null !== $this->symfonyMailerFilesystemTransportDirectory) {
             $this->symfonyMailerFilesystemTransportDirectory = null
                 ?? $theParse->dirpath_realpath($this->symfonyMailerFilesystemTransportDirectory)
-                ?? Lib::php()->throw([ 'The `symfonyFilesystemTransportDirectory` should be existing directory', $this ]);
+                ?? Lib::throw([ 'The `symfonyFilesystemTransportDirectory` should be existing directory', $this ]);
         }
     }
 }

@@ -40,14 +40,14 @@ class TelegramDriverConfig extends AbstractConfig
 
         $this->telegramBotToken = null
             ?? $theParse->string_not_empty($this->telegramBotToken)
-            ?? Lib::php()->throw([ 'The `telegramBotToken` should be non-empty string', $this ]);
+            ?? Lib::throw([ 'The `telegramBotToken` should be non-empty string', $this ]);
 
         $this->telegramBotUsername = null
             ?? $theParse->string_not_empty($this->telegramBotUsername)
-            ?? Lib::php()->throw([ 'The `telegramBotUsername` should be non-empty string', $this ]);
+            ?? Lib::throw([ 'The `telegramBotUsername` should be non-empty string', $this ]);
 
         $this->telegramChatIdIfDebug = null
             ?? $theParse->string_not_empty($this->telegramChatIdIfDebug)
-            ?? Lib::php()->throw([ 'The `telegramChatIdIfDebug` should be non-empty string', $this ]);
+            ?? Lib::throw([ 'The `telegramChatIdIfDebug` should be non-empty string', $this ]);
     }
 }

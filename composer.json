@@ -19,7 +19,6 @@
     "gzhegow/lib": "~1.0"
   },
   "suggest": {
-    "ext-ctype": "*",
     "ext-curl": "*"
   },
 
