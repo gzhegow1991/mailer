@@ -2,7 +2,7 @@
 
 namespace Gzhegow\Mailer\Exception;
 
-interface ExceptionInterface
+interface ExceptionInterface extends \Throwable
 {
 
 }
