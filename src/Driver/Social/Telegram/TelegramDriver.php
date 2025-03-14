@@ -19,6 +19,7 @@ class TelegramDriver implements DriverInterface
     public function __construct(TelegramDriverConfig $config)
     {
         $this->config = $config;
+        $this->config->validate();
     }
 
 

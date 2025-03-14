@@ -40,6 +40,7 @@ class EmailDriver implements DriverInterface
     public function __construct(EmailDriverConfig $config)
     {
         $this->config = $config;
+        $this->config->validate();
     }
 
 

@@ -4,6 +4,7 @@ namespace Gzhegow\Mailer\Driver\Social\Telegram;
 
 use Gzhegow\Lib\Lib;
 use Gzhegow\Lib\Config\AbstractConfig;
+use Gzhegow\Mailer\Exception\LogicException;
 
 
 /**
@@ -18,6 +19,7 @@ class TelegramDriverConfig extends AbstractConfig
      * @var bool
      */
     protected $isDebug;
+
     /**
      * @var string
      */
@@ -32,22 +34,30 @@ class TelegramDriverConfig extends AbstractConfig
     protected $telegramChatIdIfDebug;
 
 
-    public function validate() : void
+    protected function validation(array $context = []) : bool
     {
-        $theParse = Lib::parse();
+        $theType = Lib::type();
 
         $this->isDebug = (bool) $this->isDebug;
 
-        $this->telegramBotToken = null
-            ?? $theParse->string_not_empty($this->telegramBotToken)
-            ?? Lib::throw([ 'The `telegramBotToken` should be non-empty string', $this ]);
+        if (! $theType->string_not_empty($result, $this->telegramBotToken)) {
+            throw new LogicException(
+                [ 'The `telegramBotToken` should be non-empty string', $this ]
+            );
+        }
 
-        $this->telegramBotUsername = null
-            ?? $theParse->string_not_empty($this->telegramBotUsername)
-            ?? Lib::throw([ 'The `telegramBotUsername` should be non-empty string', $this ]);
+        if (! $theType->string_not_empty($result, $this->telegramBotUsername)) {
+            throw new LogicException(
+                [ 'The `telegramBotUsername` should be non-empty string', $this ]
+            );
+        }
 
-        $this->telegramChatIdIfDebug = null
-            ?? $theParse->string_not_empty($this->telegramChatIdIfDebug)
-            ?? Lib::throw([ 'The `telegramChatIdIfDebug` should be non-empty string', $this ]);
+        if (! $theType->string_not_empty($result, $this->telegramChatIdIfDebug)) {
+            throw new LogicException(
+                [ 'The `telegramChatIdIfDebug` should be non-empty string', $this ]
+            );
+        }
+
+        return true;
     }
 }

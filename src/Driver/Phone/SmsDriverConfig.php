@@ -16,8 +16,10 @@ class SmsDriverConfig extends AbstractConfig
     protected $isDebug;
 
 
-    public function validate() : void
+    public function validation(array $context = []) : bool
     {
         $this->isDebug = (bool) $this->isDebug;
+
+        return true;
     }
 }

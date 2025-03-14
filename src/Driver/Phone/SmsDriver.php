@@ -30,6 +30,7 @@ class SmsDriver implements DriverInterface
         $this->telegramDriver = $telegramDriver;
 
         $this->config = $config;
+        $this->config->validate();
     }
 
 

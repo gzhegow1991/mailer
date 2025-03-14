@@ -31,16 +31,10 @@ class MailerConfig extends AbstractConfig
 
     public function __construct()
     {
-        $this->__sections[ 'emailDriver' ] = $this->emailDriver = new EmailDriverConfig();
-        $this->__sections[ 'smsDriver' ] = $this->smsDriver = new SmsDriverConfig();
-        $this->__sections[ 'telegramDriver' ] = $this->telegramDriver = new TelegramDriverConfig();
-    }
+        $this->emailDriver = new EmailDriverConfig();
+        $this->smsDriver = new SmsDriverConfig();
+        $this->telegramDriver = new TelegramDriverConfig();
 
-
-    public function validate() : void
-    {
-        $this->emailDriver->validate();
-        $this->smsDriver->validate();
-        $this->telegramDriver->validate();
+        parent::__construct();
     }
 }
