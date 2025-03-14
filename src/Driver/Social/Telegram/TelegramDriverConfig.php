@@ -34,7 +34,7 @@ class TelegramDriverConfig extends AbstractConfig
     protected $telegramChatIdIfDebug;
 
 
-    protected function validation(array $context = []) : bool
+    protected function validation(array &$context = []) : bool
     {
         $theType = Lib::type();
 

@@ -39,7 +39,7 @@ class EmailDriverConfig extends AbstractConfig
     protected $symfonyMailerFilesystemTransportDirectory;
 
 
-    protected function validation(array $context = []) : bool
+    protected function validation(array &$context = []) : bool
     {
         $theType = Lib::type();
 
