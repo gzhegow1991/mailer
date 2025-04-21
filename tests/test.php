@@ -1,22 +1,3 @@
-# Mailer
-
-Простая обертка для почтовика, позволяющего рассылать письма по электронке или в социальные сети с возможностью добавление собственных драйверов
-
-## Установить
-
-```
-composer require gzhegow/mailer
-```
-
-## Запустить тесты
-
-```
-php test.php
-```
-
-## Примеры и тесты
-
-```php
 <?php
 
 define('__ROOT__', __DIR__ . '/..');
@@ -175,5 +156,3 @@ _assert_stdout($fn, [], '
 { object # Gzhegow\Mailer\Driver\Phone\SmsDriver }
 { object # Gzhegow\Mailer\Driver\Social\Telegram\TelegramDriver }
 ');
-```
-
