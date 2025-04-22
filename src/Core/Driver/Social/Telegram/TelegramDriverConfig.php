@@ -4,7 +4,7 @@ namespace Gzhegow\Mailer\Core\Driver\Social\Telegram;
 
 use Gzhegow\Lib\Lib;
 use Gzhegow\Lib\Config\AbstractConfig;
-use Gzhegow\Mailer\Core\Exception\LogicException;
+use Gzhegow\Mailer\Exception\LogicException;
 
 
 /**

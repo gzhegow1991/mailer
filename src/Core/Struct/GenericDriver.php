@@ -4,7 +4,7 @@ namespace Gzhegow\Mailer\Core\Struct;
 
 use Gzhegow\Lib\Lib;
 use Gzhegow\Mailer\Core\Driver\DriverInterface;
-use Gzhegow\Mailer\Core\Exception\LogicException;
+use Gzhegow\Mailer\Exception\LogicException;
 
 
 /**

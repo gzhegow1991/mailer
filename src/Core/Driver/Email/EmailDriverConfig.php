@@ -4,7 +4,7 @@ namespace Gzhegow\Mailer\Core\Driver\Email;
 
 use Gzhegow\Lib\Lib;
 use Gzhegow\Lib\Config\AbstractConfig;
-use Gzhegow\Mailer\Core\Exception\LogicException;
+use Gzhegow\Mailer\Exception\LogicException;
 
 
 /**

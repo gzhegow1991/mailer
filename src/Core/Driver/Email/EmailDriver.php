@@ -6,7 +6,7 @@ use Symfony\Component\Mailer\Mailer;
 use Gzhegow\Mailer\Core\Struct\GenericMessage;
 use Symfony\Component\Mime\Part\DataPart as SymfonyDataPart;
 use Gzhegow\Mailer\Core\Driver\DriverInterface;
-use Gzhegow\Mailer\Core\Exception\RuntimeException;
+use Gzhegow\Mailer\Exception\RuntimeException;
 use Symfony\Component\Mime\Email as SymfonyEmail;
 use Symfony\Component\Mailer\Transport\Dsn as SymfonyDsn;
 use Symfony\Component\Mailer\Transport\NullTransportFactory;

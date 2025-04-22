@@ -5,7 +5,7 @@ namespace Gzhegow\Mailer\Core\Driver\Social\Telegram;
 use Gzhegow\Lib\Lib;
 use Gzhegow\Mailer\Core\Struct\GenericMessage;
 use Gzhegow\Mailer\Core\Driver\DriverInterface;
-use Gzhegow\Mailer\Core\Exception\RuntimeException;
+use Gzhegow\Mailer\Exception\RuntimeException;
 
 
 class TelegramDriver implements DriverInterface

@@ -3,7 +3,7 @@
 namespace Gzhegow\Mailer\Core\Struct;
 
 use Gzhegow\Lib\Lib;
-use Gzhegow\Mailer\Core\Exception\LogicException;
+use Gzhegow\Mailer\Exception\LogicException;
 use Symfony\Component\Mime\Email as SymfonyEmail;
 
 

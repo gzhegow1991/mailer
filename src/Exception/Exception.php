@@ -1,6 +1,6 @@
 <?php
 
-namespace Gzhegow\Mailer\Core\Exception;
+namespace Gzhegow\Mailer\Exception;
 
 use Gzhegow\Lib\Exception\Exception as ExceptionBase;
 
