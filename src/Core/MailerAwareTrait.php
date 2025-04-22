@@ -1,6 +1,6 @@
 <?php
 
-namespace Gzhegow\Mailer;
+namespace Gzhegow\Mailer\Core;
 
 
 trait MailerAwareTrait

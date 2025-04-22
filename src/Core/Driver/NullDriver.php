@@ -1,8 +1,8 @@
 <?php
 
-namespace Gzhegow\Mailer\Driver;
+namespace Gzhegow\Mailer\Core\Driver;
 
-use Gzhegow\Mailer\Struct\GenericMessage;
+use Gzhegow\Mailer\Core\Struct\GenericMessage;
 
 
 class NullDriver implements DriverInterface

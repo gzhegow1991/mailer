@@ -1,10 +1,10 @@
 <?php
 
-namespace Gzhegow\Mailer\Driver\Social\Telegram;
+namespace Gzhegow\Mailer\Core\Driver\Social\Telegram;
 
 use Gzhegow\Lib\Lib;
 use Gzhegow\Lib\Config\AbstractConfig;
-use Gzhegow\Mailer\Exception\LogicException;
+use Gzhegow\Mailer\Core\Exception\LogicException;
 
 
 /**

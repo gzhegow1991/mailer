@@ -1,6 +1,6 @@
 <?php
 
-namespace Gzhegow\Mailer\Exception;
+namespace Gzhegow\Mailer\Core\Exception;
 
 use Gzhegow\Lib\Exception\LogicException as LogicExceptionBase;
 

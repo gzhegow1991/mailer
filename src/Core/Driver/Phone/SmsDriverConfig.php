@@ -1,6 +1,6 @@
 <?php
 
-namespace Gzhegow\Mailer\Driver\Phone;
+namespace Gzhegow\Mailer\Core\Driver\Phone;
 
 use Gzhegow\Lib\Config\AbstractConfig;
 

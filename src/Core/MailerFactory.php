@@ -1,13 +1,13 @@
 <?php
 
-namespace Gzhegow\Mailer;
+namespace Gzhegow\Mailer\Core;
 
-use Gzhegow\Mailer\Struct\GenericDriver;
-use Gzhegow\Mailer\Driver\DriverInterface;
-use Gzhegow\Mailer\Driver\Phone\SmsDriver;
-use Gzhegow\Mailer\Exception\LogicException;
-use Gzhegow\Mailer\Driver\Email\EmailDriver;
-use Gzhegow\Mailer\Driver\Social\Telegram\TelegramDriver;
+use Gzhegow\Mailer\Core\Struct\GenericDriver;
+use Gzhegow\Mailer\Core\Driver\DriverInterface;
+use Gzhegow\Mailer\Core\Driver\Phone\SmsDriver;
+use Gzhegow\Mailer\Core\Exception\LogicException;
+use Gzhegow\Mailer\Core\Driver\Email\EmailDriver;
+use Gzhegow\Mailer\Core\Driver\Social\Telegram\TelegramDriver;
 
 
 class MailerFactory implements MailerFactoryInterface

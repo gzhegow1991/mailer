@@ -1,9 +1,9 @@
 <?php
 
-namespace Gzhegow\Mailer;
+namespace Gzhegow\Mailer\Core;
 
-use Gzhegow\Mailer\Struct\GenericMessage;
-use Gzhegow\Mailer\Driver\DriverInterface;
+use Gzhegow\Mailer\Core\Struct\GenericMessage;
+use Gzhegow\Mailer\Core\Driver\DriverInterface;
 use Symfony\Component\Mime\Email as SymfonyEmail;
 
 

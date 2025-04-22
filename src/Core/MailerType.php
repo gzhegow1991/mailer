@@ -1,9 +1,9 @@
 <?php
 
-namespace Gzhegow\Mailer;
+namespace Gzhegow\Mailer\Core;
 
-use Gzhegow\Mailer\Struct\GenericDriver;
-use Gzhegow\Mailer\Struct\GenericMessage;
+use Gzhegow\Mailer\Core\Struct\GenericDriver;
+use Gzhegow\Mailer\Core\Struct\GenericMessage;
 
 
 class MailerType implements MailerTypeInterface

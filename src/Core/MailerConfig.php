@@ -1,11 +1,11 @@
 <?php
 
-namespace Gzhegow\Mailer;
+namespace Gzhegow\Mailer\Core;
 
 use Gzhegow\Lib\Config\AbstractConfig;
-use Gzhegow\Mailer\Driver\Phone\SmsDriverConfig;
-use Gzhegow\Mailer\Driver\Email\EmailDriverConfig;
-use Gzhegow\Mailer\Driver\Social\Telegram\TelegramDriverConfig;
+use Gzhegow\Mailer\Core\Driver\Phone\SmsDriverConfig;
+use Gzhegow\Mailer\Core\Driver\Email\EmailDriverConfig;
+use Gzhegow\Mailer\Core\Driver\Social\Telegram\TelegramDriverConfig;
 
 
 /**

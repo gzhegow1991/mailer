@@ -65,23 +65,23 @@ function _assert_stdout(
 // >>> ЗАПУСКАЕМ!
 
 // > сначала всегда фабрика
-$factory = new \Gzhegow\Mailer\MailerFactory();
+$factory = new \Gzhegow\Mailer\Core\MailerFactory();
 
 // > создаем конфигурацию
-$config = new \Gzhegow\Mailer\MailerConfig();
-$config->configure(function (\Gzhegow\Mailer\MailerConfig $config) {
+$config = new \Gzhegow\Mailer\Core\MailerConfig();
+$config->configure(function (\Gzhegow\Mailer\Core\MailerConfig $config) {
     $emailDriverDir = __ROOT__ . '/var/email';
 
     // > можно указать параметры для конкретных драйверов
 
-    // \Gzhegow\Mailer\Driver\Email\EmailDriver::class
+    // \Gzhegow\Mailer\Core\Driver\Email\EmailDriver::class
     $config->emailDriver->isDebug = true;
     $config->emailDriver->symfonyMailerFilesystemTransportDirectory = $emailDriverDir;
 
-    // \Gzhegow\Mailer\Driver\Phone\SmsDriver::class
+    // \Gzhegow\Mailer\Core\Driver\Phone\SmsDriver::class
     $config->smsDriver->isDebug = true;
 
-    // \Gzhegow\Mailer\Driver\Social\Telegram\TelegramDriver::class
+    // \Gzhegow\Mailer\Core\Driver\Social\Telegram\TelegramDriver::class
     $config->telegramDriver->isDebug = true;
 
     if (file_exists($iniFile = __ROOT__ . '/secret.ini')) {
@@ -110,10 +110,10 @@ $config->configure(function (\Gzhegow\Mailer\MailerConfig $config) {
 });
 
 // > создаем парсер типов
-$type = new \Gzhegow\Mailer\MailerType();
+$type = new \Gzhegow\Mailer\Core\MailerType();
 
 // > создаем фасад
-$mailer = new \Gzhegow\Mailer\MailerFacade(
+$mailer = new \Gzhegow\Mailer\Core\MailerFacade(
     $factory,
     $type,
     //
@@ -121,7 +121,7 @@ $mailer = new \Gzhegow\Mailer\MailerFacade(
 );
 
 // > сохраняем фасад статически (чтобы вызывать без привязки к контейнеру)
-\Gzhegow\Mailer\Mailer::setFacade($mailer);
+\Gzhegow\Mailer\Core\Mailer::setFacade($mailer);
 
 
 // > TEST
@@ -140,19 +140,19 @@ $fn = function () use ($mailer) {
     $symfonyEmail->text('[ EMAIL ] Hello, {{name}}!');
     $symfonyEmail->html('<b>[ EMAIL ] Hello, {{name}}!</b>');
     $message = $mailer->interpolateMessage($symfonyEmail, $placeholders);
-    $emailDriver = $mailer->sendNowBy(\Gzhegow\Mailer\Driver\Email\EmailDriver::class, $message, $emailTo = 'email@example.com');
+    $emailDriver = $mailer->sendNowBy(\Gzhegow\Mailer\Core\Driver\Email\EmailDriver::class, $message, $emailTo = 'email@example.com');
     _print($emailDriver);
 
     // > отправляем сообщение по SMS (драйвер следует наследовать и реализовать с использованием собственной АТС или сервиса отсылки SMS)
     $text = '[ SMS ] Hello, {{name}}!';
     $message = $mailer->interpolateMessage($text, $placeholders);
-    $smsDriver = $mailer->sendNowBy(\Gzhegow\Mailer\Driver\Phone\SmsDriver::class, $message, $mobilePhoneFake = '+375990000000');
+    $smsDriver = $mailer->sendNowBy(\Gzhegow\Mailer\Core\Driver\Phone\SmsDriver::class, $message, $mobilePhoneFake = '+375990000000');
     _print($smsDriver);
 
     // > отправляем сообщение в телеграм
     $text = '[ Telegram ] Hello, {{name}}!';
     $message = $mailer->interpolateMessage($text, $placeholders);
-    $telegramDriver = $mailer->sendNowBy(\Gzhegow\Mailer\Driver\Social\Telegram\TelegramDriver::class, $message, $telegramChatId = '0000000000');
+    $telegramDriver = $mailer->sendNowBy(\Gzhegow\Mailer\Core\Driver\Social\Telegram\TelegramDriver::class, $message, $telegramChatId = '0000000000');
     _print($telegramDriver);
 
     // > очищаем папку перехваченных в режиме isDebug сообщений Email
@@ -171,9 +171,9 @@ $fn = function () use ($mailer) {
 _assert_stdout($fn, [], '
 "TEST 1"
 
-{ object # Gzhegow\Mailer\Driver\Email\EmailDriver }
-{ object # Gzhegow\Mailer\Driver\Phone\SmsDriver }
-{ object # Gzhegow\Mailer\Driver\Social\Telegram\TelegramDriver }
+{ object # Gzhegow\Mailer\Core\Driver\Email\EmailDriver }
+{ object # Gzhegow\Mailer\Core\Driver\Phone\SmsDriver }
+{ object # Gzhegow\Mailer\Core\Driver\Social\Telegram\TelegramDriver }
 ');
 ```
 

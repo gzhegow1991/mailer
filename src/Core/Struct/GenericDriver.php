@@ -1,10 +1,10 @@
 <?php
 
-namespace Gzhegow\Mailer\Struct;
+namespace Gzhegow\Mailer\Core\Struct;
 
 use Gzhegow\Lib\Lib;
-use Gzhegow\Mailer\Driver\DriverInterface;
-use Gzhegow\Mailer\Exception\LogicException;
+use Gzhegow\Mailer\Core\Driver\DriverInterface;
+use Gzhegow\Mailer\Core\Exception\LogicException;
 
 
 /**

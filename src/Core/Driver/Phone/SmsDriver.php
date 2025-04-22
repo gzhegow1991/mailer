@@ -1,11 +1,11 @@
 <?php
 
-namespace Gzhegow\Mailer\Driver\Phone;
+namespace Gzhegow\Mailer\Core\Driver\Phone;
 
 use Gzhegow\Lib\Lib;
-use Gzhegow\Mailer\Struct\GenericMessage;
-use Gzhegow\Mailer\Driver\DriverInterface;
-use Gzhegow\Mailer\Driver\Social\Telegram\TelegramDriver;
+use Gzhegow\Mailer\Core\Struct\GenericMessage;
+use Gzhegow\Mailer\Core\Driver\DriverInterface;
+use Gzhegow\Mailer\Core\Driver\Social\Telegram\TelegramDriver;
 
 
 class SmsDriver implements DriverInterface
