@@ -1,8 +1,6 @@
 <?php
 
-define('__ROOT__', __DIR__ . '/..');
-
-require_once __ROOT__ . '/vendor/autoload.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 
 // > настраиваем PHP
@@ -19,6 +17,12 @@ ini_set('memory_limit', '32M');
 
 // > добавляем несколько функция для тестирования
 $ffn = new class {
+    function root() : string
+    {
+        return realpath(__DIR__ . '/..');
+    }
+
+
     function values($separator = null, ...$values) : string
     {
         return \Gzhegow\Lib\Lib::debug()->values([], $separator, ...$values);
@@ -54,8 +58,8 @@ $factory = new \Gzhegow\Mailer\Core\MailerFactory();
 
 // > создаем конфигурацию
 $config = new \Gzhegow\Mailer\Core\MailerConfig();
-$config->configure(function (\Gzhegow\Mailer\Core\MailerConfig $config) {
-    $emailDriverDir = __ROOT__ . '/var/email';
+$config->configure(function (\Gzhegow\Mailer\Core\MailerConfig $config) use ($ffn) {
+    $emailDriverDir = $ffn->root() . '/var/email';
 
     // > можно указать параметры для конкретных драйверов
 
@@ -69,7 +73,7 @@ $config->configure(function (\Gzhegow\Mailer\Core\MailerConfig $config) {
     // \Gzhegow\Mailer\Core\Driver\Social\Telegram\TelegramDriver::class
     $config->telegramDriver->isDebug = true;
 
-    if (file_exists($iniFile = __ROOT__ . '/secret.ini')) {
+    if (file_exists($iniFile = $ffn->root() . '/secret.ini')) {
         $ini = parse_ini_file($iniFile, true);
 
         // > gzhegow, 2025.01.15, это всё ещё работает, в отличие от Google, который "по соображениям безопасности" крутит как хочет
@@ -141,7 +145,7 @@ $fn = function () use ($mailer, $ffn) {
     $ffn->print($telegramDriver);
 
     // > очищаем папку перехваченных в режиме isDebug сообщений Email
-    foreach ( \Gzhegow\Lib\Lib::fs()->dir_walk_it(__ROOT__ . '/var/email') as $spl ) {
+    foreach ( \Gzhegow\Lib\Lib::fs()->dir_walk_it($ffn->root() . '/var/email') as $spl ) {
         if ($spl->getFilename() === '.gitignore') {
             continue;
         }
