@@ -18,29 +18,33 @@ ini_set('memory_limit', '32M');
 
 
 // > добавляем несколько функция для тестирования
-function _values($separator = null, ...$values) : string
-{
-    return \Gzhegow\Lib\Lib::debug()->values($separator, [], ...$values);
-}
+$ffn = new class {
+    function values($separator = null, ...$values) : string
+    {
+        return \Gzhegow\Lib\Lib::debug()->values([], $separator, ...$values);
+    }
 
-function _print(...$values) : void
-{
-    echo _values(' | ', ...$values) . PHP_EOL;
-}
 
-function _assert_stdout(
-    \Closure $fn, array $fnArgs = [],
-    string $expectedStdout = null
-) : void
-{
-    $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1);
+    function print(...$values) : void
+    {
+        echo $this->values(' | ', ...$values) . PHP_EOL;
+    }
 
-    \Gzhegow\Lib\Lib::test()->assertStdout(
-        $trace,
-        $fn, $fnArgs,
-        $expectedStdout
-    );
-}
+
+    function assert_stdout(
+        \Closure $fn, array $fnArgs = [],
+        string $expectedStdout = null
+    ) : void
+    {
+        $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1);
+
+        \Gzhegow\Lib\Lib::test()->assertStdout(
+            $trace,
+            $fn, $fnArgs,
+            $expectedStdout
+        );
+    }
+};
 
 
 // >>> ЗАПУСКАЕМ!
@@ -107,8 +111,8 @@ $mailer = new \Gzhegow\Mailer\Core\MailerFacade(
 
 // > TEST
 // > создаем дату, временную зону и интервал
-$fn = function () use ($mailer) {
-    _print('TEST 1');
+$fn = function () use ($mailer, $ffn) {
+    $ffn->print('TEST 1');
     echo PHP_EOL;
 
     $placeholders = [
@@ -122,19 +126,19 @@ $fn = function () use ($mailer) {
     $symfonyEmail->html('<b>[ EMAIL ] Hello, {{name}}!</b>');
     $message = $mailer->interpolateMessage($symfonyEmail, $placeholders);
     $emailDriver = $mailer->sendNowBy(\Gzhegow\Mailer\Core\Driver\Email\EmailDriver::class, $message, $emailTo = 'email@example.com');
-    _print($emailDriver);
+    $ffn->print($emailDriver);
 
     // > отправляем сообщение по SMS (драйвер следует наследовать и реализовать с использованием собственной АТС или сервиса отсылки SMS)
     $text = '[ SMS ] Hello, {{name}}!';
     $message = $mailer->interpolateMessage($text, $placeholders);
     $smsDriver = $mailer->sendNowBy(\Gzhegow\Mailer\Core\Driver\Phone\SmsDriver::class, $message, $mobilePhoneFake = '+375990000000');
-    _print($smsDriver);
+    $ffn->print($smsDriver);
 
     // > отправляем сообщение в телеграм
     $text = '[ Telegram ] Hello, {{name}}!';
     $message = $mailer->interpolateMessage($text, $placeholders);
     $telegramDriver = $mailer->sendNowBy(\Gzhegow\Mailer\Core\Driver\Social\Telegram\TelegramDriver::class, $message, $telegramChatId = '0000000000');
-    _print($telegramDriver);
+    $ffn->print($telegramDriver);
 
     // > очищаем папку перехваченных в режиме isDebug сообщений Email
     foreach ( \Gzhegow\Lib\Lib::fs()->dir_walk_it(__ROOT__ . '/var/email') as $spl ) {
@@ -149,7 +153,7 @@ $fn = function () use ($mailer) {
             : rmdir($realpath);
     }
 };
-_assert_stdout($fn, [], '
+$ffn->assert_stdout($fn, [], '
 "TEST 1"
 
 { object # Gzhegow\Mailer\Core\Driver\Email\EmailDriver }

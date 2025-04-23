@@ -17,7 +17,7 @@
   "require": {
     "php": "^7.3|^8.0",
 
-    "symfony/mailer": "~5.0",
+    "symfony/mailer": "^5.0",
 
     "gzhegow/lib": "~1.0"
   },
