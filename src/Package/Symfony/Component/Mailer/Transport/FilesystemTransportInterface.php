@@ -8,7 +8,7 @@ interface FilesystemTransportInterface
     /**
      * @return static
      */
-    public function setDirectory(string $directory); // : static
+    public function setDirectory(string $directory);
 
 
     /**
