@@ -33,7 +33,7 @@ class GenericDriver
 
 
     /**
-     * @return static
+     * @return static|bool|null
      */
     public static function from($from, array $context = [], array $refs = []) // : static
     {
