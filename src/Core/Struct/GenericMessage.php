@@ -84,31 +84,7 @@ class GenericMessage implements \Serializable
     /**
      * @return static|bool|null
      */
-    public static function from($from, array $context = [], array $refs = []) // : static
-    {
-        $withErrors = array_key_exists(0, $refs);
-
-        $refs[ 0 ] = $refs[ 0 ] ?? null;
-
-        $instance = null
-            ?? static::fromInstance($from, $context, $refs)
-            ?? static::fromSymfonyMail($from, $context, $refs)
-            ?? static::fromArray($from, $context, $refs)
-            ?? static::fromString($from, $context, $refs);
-
-        if (! $withErrors) {
-            if (null === $instance) {
-                throw $refs[ 0 ];
-            }
-        }
-
-        return $instance;
-    }
-
-    /**
-     * @return static|bool|null
-     */
-    public static function fromInstance($from, array $context = [], array $refs = []) // : ?static
+    public static function fromInstance($from, array $refs = []) // : ?static
     {
         if ($from instanceof static) {
             return Lib::refsResult($refs, $from);
@@ -125,7 +101,7 @@ class GenericMessage implements \Serializable
     /**
      * @return static|bool|null
      */
-    public static function fromSymfonyMail($from, array $context = [], array $refs = [])
+    public static function fromSymfonyMail($from, array $refs = [])
     {
         if (! is_a($from, SymfonyEmail::class)) {
             return Lib::refsError(
@@ -155,7 +131,7 @@ class GenericMessage implements \Serializable
     /**
      * @return static|bool|null
      */
-    public static function fromArray($from, array $context = [], array $refs = [])
+    public static function fromArray($from, array $refs = [])
     {
         if (! is_array($from)) {
             return Lib::refsError(
@@ -207,7 +183,7 @@ class GenericMessage implements \Serializable
     /**
      * @return static|bool|null
      */
-    public static function fromString($from, array $context = [], array $refs = [])
+    public static function fromString($from, array $refs = [])
     {
         if (! Lib::type()->string_not_empty($messageText, $from)) {
             return Lib::refsError(

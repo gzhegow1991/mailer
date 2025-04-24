@@ -45,7 +45,16 @@ class MailerFacade implements MailerInterface
      */
     public function getDriver($driver, array $context = []) : DriverInterface
     {
-        $genericDriver = GenericDriver::from($driver, $context);
+        $e = null;
+
+        $genericDriver = null
+            ?? GenericDriver::fromInstance($driver, [ &$e ])
+            ?? GenericDriver::fromDriver($driver, $context, [ &$e ])
+            ?? GenericDriver::fromString($driver, $context, [ &$e ]);
+
+        if (null === $driver) {
+            throw $e;
+        }
 
         $driverObject = $this->factory->newDriver($genericDriver, $this->config);
 
@@ -63,7 +72,17 @@ class MailerFacade implements MailerInterface
     {
         $driverObject = $this->getDriver($driver, $context);
 
-        $genericMessage = GenericMessage::from($message, $context);
+        $e = null;
+
+        $genericMessage = null
+            ?? GenericMessage::fromInstance($message, [ &$e ])
+            ?? GenericMessage::fromSymfonyMail($message, [ &$e ])
+            ?? GenericMessage::fromArray($message, [ &$e ])
+            ?? GenericMessage::fromString($message, [ &$e ]);
+
+        if (null === $genericMessage) {
+            throw $e;
+        }
 
         $driverObject->sendLater($genericMessage, $to, $context);
 
@@ -80,7 +99,17 @@ class MailerFacade implements MailerInterface
     {
         $driverObject = $this->getDriver($driver, $context);
 
-        $genericMessage = GenericMessage::from($message, $context);
+        $e = null;
+
+        $genericMessage = null
+            ?? GenericMessage::fromInstance($message, [ &$e ])
+            ?? GenericMessage::fromSymfonyMail($message, [ &$e ])
+            ?? GenericMessage::fromArray($message, [ &$e ])
+            ?? GenericMessage::fromString($message, [ &$e ]);
+
+        if (null === $genericMessage) {
+            throw $e;
+        }
 
         $driverObject = $driverObject->sendNow($genericMessage, $to, $context);
 
@@ -97,7 +126,17 @@ class MailerFacade implements MailerInterface
 
         $theInterpolator = Lib::str()->interpolator();
 
-        $genericMessage = GenericMessage::from($message, $context);
+        $e = null;
+
+        $genericMessage = null
+            ?? GenericMessage::fromInstance($message, [ &$e ])
+            ?? GenericMessage::fromSymfonyMail($message, [ &$e ])
+            ?? GenericMessage::fromArray($message, [ &$e ])
+            ?? GenericMessage::fromString($message, [ &$e ]);
+
+        if (null === $genericMessage) {
+            throw $e;
+        }
 
         if (null !== $genericMessage->subject) {
             $subject = $theInterpolator->interpolate($genericMessage->subject, $placeholders);
