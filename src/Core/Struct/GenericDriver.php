@@ -39,7 +39,7 @@ class GenericDriver
         $refs[ 0 ] = $refs[ 0 ] ?? null;
 
         $instance = null
-            ?? GenericDriver::fromInstance($from, $refs)
+            ?? GenericDriver::fromStatic($from, $refs)
             ?? GenericDriver::fromDriver($from, $context, $refs)
             ?? GenericDriver::fromString($from, $context, $refs);
 
@@ -55,7 +55,7 @@ class GenericDriver
     /**
      * @return static|bool|null
      */
-    public static function fromInstance($from, array $refs = [])
+    public static function fromStatic($from, array $refs = [])
     {
         if ($from instanceof static) {
             return Lib::refsResult($refs, $from);
