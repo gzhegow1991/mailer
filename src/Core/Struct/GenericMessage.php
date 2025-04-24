@@ -10,11 +10,6 @@ use Symfony\Component\Mime\Email as SymfonyEmail;
 class GenericMessage implements \Serializable
 {
     /**
-     * @var SymfonyEmail
-     */
-    public $symfonyEmail;
-
-    /**
      * @var string
      */
     public $subject;
@@ -56,12 +51,12 @@ class GenericMessage implements \Serializable
     /**
      * @return static
      */
-    public static function from($from, $context = null) // : static
+    public static function from($from, array $context = []) // : static
     {
-        $instance = static::tryFrom($from, $context, $error);
+        $instance = static::tryFrom($from, $context, $e);
 
         if (null === $instance) {
-            throw $error;
+            throw $e;
         }
 
         return $instance;
@@ -70,52 +65,48 @@ class GenericMessage implements \Serializable
     /**
      * @return static|null
      */
-    public static function tryFrom($from, $context = null, \Throwable &$last = null) // : ?static
+    public static function tryFrom($from, array $context = [], \Throwable &$e = null) // : ?static
     {
-        $last = null;
-
-        Lib::php()->errors_start($b);
+        $e = null;
 
         $instance = null
-            ?? static::tryFromInstance($from, $context)
-            ?? static::tryFromSymfonyMail($from, $context)
-            ?? static::tryFromArray($from, $context)
-            ?? static::tryFromString($from, $context);
-
-        $errors = Lib::php()->errors_end($b);
-
-        if (null === $instance) {
-            foreach ( $errors as $error ) {
-                $last = new LogicException($error, $last);
-            }
-        }
+            ?? static::fromInstance($from, $context, [ &$e ])
+            ?? static::fromSymfonyMail($from, $context, [ &$e ])
+            ?? static::fromArray($from, $context, [ &$e ])
+            ?? static::fromString($from, $context, [ &$e ]);
 
         return $instance;
     }
 
 
     /**
-     * @return static|null
+     * @return static|bool|null
      */
-    public static function tryFromInstance($from, $context = null) // : ?static
+    public static function fromInstance($from, array $context = [], array $refs = []) // : ?static
     {
-        if (! is_a($from, static::class)) {
-            return Lib::php()->error(
-                [ 'The `from` should be instance of: ' . static::class, $from ]
-            );
+        if ($from instanceof static) {
+            return Lib::refsResult($refs, $from);
         }
 
-        return $from;
+        return Lib::refsError(
+            $refs,
+            new LogicException(
+                [ 'The `from` should be instance of: ' . static::class, $from ]
+            )
+        );
     }
 
     /**
-     * @return static|null
+     * @return static|bool|null
      */
-    public static function tryFromSymfonyMail($from, $context = null) // : ?static
+    public static function fromSymfonyMail($from, array $context = [], array $refs = [])
     {
         if (! is_a($from, SymfonyEmail::class)) {
-            return Lib::php()->error(
-                [ 'The `from` should be instance of: ' . SymfonyEmail::class, $from ]
+            return Lib::refsError(
+                $refs,
+                new LogicException(
+                    [ 'The `from` should be instance of: ' . SymfonyEmail::class, $from ]
+                )
             );
         }
 
@@ -132,72 +123,80 @@ class GenericMessage implements \Serializable
 
         $instance->headers = $from->getHeaders();
 
-        return $instance;
+        return Lib::refsResult($refs, $instance);
     }
 
     /**
-     * @return static|null
+     * @return static|bool|null
      */
-    public static function tryFromArray($from, $context = null) // : ?static
+    public static function fromArray($from, array $context = [], array $refs = [])
     {
         if (! is_array($from)) {
-            return Lib::php()->error(
-                [ 'The `from` should be array', $from ]
+            return Lib::refsError(
+                $refs,
+                new LogicException(
+                    [ 'The `from` should be array', $from ]
+                )
             );
         }
 
         if (count($from) < 2) {
-            return Lib::php()->error(
-                [ 'The `from` should be array with at least 2 elements', $from ]
+            return Lib::refsError(
+                $refs,
+                new LogicException(
+                    [ 'The `from` should be array with at least 2 elements', $from ]
+                )
             );
         }
 
-        $theParse = Lib::parse();
 
         $_from = array_values($from);
 
         [ $subject, $text, $html ] = $_from + [ 2 => '' ];
 
-        $subject = $theParse->string_not_empty($subject);
-        $text = $theParse->string_not_empty($text);
-        $html = $theParse->string_not_empty($html);
+        $theType = Lib::type();
 
-        $hasText = (null !== $text);
-        $hasHtml = (null !== $html);
+        $hasSubject = $theType->string_not_empty($subject, $subject);
+        $hasText = $theType->string_not_empty($text, $text);
+        $hasHtml = $theType->string_not_empty($html, $html);
 
         if (! $hasText && ! $hasHtml) {
-            return Lib::php()->error(
-                [ 'The `from` should contain at least one of `text` (1) or `html` (2) keys', $from ]
+            return Lib::refsError(
+                $refs,
+                new LogicException(
+                    [ 'The `from` should contain at least one of `text` (1) or `html` (2) keys', $from ]
+                )
             );
         }
 
         $instance = new GenericMessage();
 
-        if (null !== $subject) $instance->subject = $subject;
+        if ($hasSubject) $instance->subject = $subject;
         if ($hasText) $instance->text = $text;
         if ($hasHtml) $instance->html = $html;
 
-        return $instance;
+        return Lib::refsResult($refs, $instance);
     }
 
     /**
-     * @return static|null
+     * @return static|bool|null
      */
-    public static function tryFromString($from, $context = null) // : ?static
+    public static function fromString($from, array $context = [], array $refs = [])
     {
-        $theParse = Lib::parse();
-
-        if (null === ($text = $theParse->string_not_empty($from))) {
-            return Lib::php()->error(
-                [ 'The `from` should be non-empty string', $from ]
+        if (! Lib::type()->string_not_empty($messageText, $from)) {
+            return Lib::refsError(
+                $refs,
+                new LogicException(
+                    [ 'The `from` should be non-empty string', $from ]
+                )
             );
         }
 
         $instance = new GenericMessage();
 
-        $instance->text = $text;
+        $instance->text = $messageText;
 
-        return $instance;
+        return Lib::refsResult($refs, $instance);
     }
 
 

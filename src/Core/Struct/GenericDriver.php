@@ -3,8 +3,8 @@
 namespace Gzhegow\Mailer\Core\Struct;
 
 use Gzhegow\Lib\Lib;
-use Gzhegow\Mailer\Core\Driver\DriverInterface;
 use Gzhegow\Mailer\Exception\LogicException;
+use Gzhegow\Mailer\Core\Driver\DriverInterface;
 
 
 /**
@@ -35,12 +35,12 @@ class GenericDriver
     /**
      * @return static
      */
-    public static function from($from, $context = null) // : static
+    public static function from($from, array $context = []) // : static
     {
-        $instance = static::tryFrom($from, $context, $error);
+        $instance = static::tryFrom($from, $context, $e);
 
         if (null === $instance) {
-            throw $error;
+            throw $e;
         }
 
         return $instance;
@@ -49,51 +49,47 @@ class GenericDriver
     /**
      * @return static|null
      */
-    public static function tryFrom($from, $context = null, \Throwable &$last = null) // : ?static
+    public static function tryFrom($from, array $context = [], \Throwable &$e = null) // : ?static
     {
-        $last = null;
-
-        Lib::php()->errors_start($b);
+        $e = null;
 
         $instance = null
-            ?? static::tryFromInstance($from, $context)
-            ?? static::tryFromDriver($from, $context)
-            ?? static::tryFromString($from, $context);
-
-        $errors = Lib::php()->errors_end($b);
-
-        if (null === $instance) {
-            foreach ( $errors as $error ) {
-                $last = new LogicException($error, $last);
-            }
-        }
+            ?? static::fromInstance($from, $context, [ &$e ])
+            ?? static::fromDriver($from, $context, [ &$e ])
+            ?? static::fromString($from, $context, [ &$e ]);
 
         return $instance;
     }
 
 
     /**
-     * @return static|null
+     * @return static|bool|null
      */
-    public static function tryFromInstance($from, $context = null) // : ?static
+    public static function fromInstance($from, array $context = [], array $refs = [])
     {
-        if (! is_a($from, static::class)) {
-            return Lib::php()->error(
-                [ 'The `from` should be instance of: ' . static::class, $from ]
-            );
+        if ($from instanceof static) {
+            return Lib::refsResult($refs, $from);
         }
 
-        return $from;
+        return Lib::refsError(
+            $refs,
+            new LogicException(
+                [ 'The `from` should be instance of: ' . static::class, $from ]
+            )
+        );
     }
 
     /**
-     * @return static|null
+     * @return static|bool|null
      */
-    public static function tryFromDriver($from, $context = null) // : ?static
+    public static function fromDriver($from, array $context = [], array $refs = [])
     {
         if (! is_a($from, DriverInterface::class)) {
-            return Lib::php()->error(
-                [ 'The `from` should be instance of: ' . DriverInterface::class, $from ]
+            return Lib::refsError(
+                $refs,
+                new LogicException(
+                    [ 'The `from` should be instance of: ' . DriverInterface::class, $from ]
+                )
             );
         }
 
@@ -102,25 +98,29 @@ class GenericDriver
         $instance->driverClass = get_class($from);
         $instance->context = $context;
 
-        return $instance;
+        return Lib::refsResult($refs, $instance);
     }
 
     /**
-     * @return static|null
+     * @return static|bool|null
      */
-    public static function tryFromString($from, $context = null) // : ?static
+    public static function fromString($from, array $context = [], array $refs = [])
     {
-        $theParse = Lib::parse();
-
-        if (null === ($driverClass = $theParse->string_not_empty($from))) {
-            return Lib::php()->error(
-                [ 'The `from` should be class-string of: ' . DriverInterface::class, $from ]
+        if (! Lib::type()->string_not_empty($driverClass, $from)) {
+            return Lib::refsError(
+                $refs,
+                new LogicException(
+                    [ 'The `from` should be non-empty string', $from ]
+                )
             );
         }
 
         if (! is_subclass_of($driverClass, DriverInterface::class)) {
-            return Lib::php()->error(
-                [ 'The `from` should be class-string of: ' . DriverInterface::class, $from ]
+            return Lib::refsError(
+                $refs,
+                new LogicException(
+                    [ 'The `from` should be subclass of: ' . DriverInterface::class, $from ]
+                )
             );
         }
 
@@ -128,7 +128,7 @@ class GenericDriver
         $instance->driverClass = $from;
         $instance->context = $context;
 
-        return $instance;
+        return Lib::refsResult($refs, $instance);
     }
 
 

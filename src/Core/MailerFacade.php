@@ -3,6 +3,7 @@
 namespace Gzhegow\Mailer\Core;
 
 use Gzhegow\Lib\Lib;
+use Gzhegow\Mailer\Core\Struct\GenericDriver;
 use Gzhegow\Mailer\Core\Struct\GenericMessage;
 use Gzhegow\Mailer\Core\Driver\DriverInterface;
 use Symfony\Component\Mime\Email as SymfonyEmail;
@@ -17,10 +18,6 @@ class MailerFacade implements MailerInterface
      * @var MailerFactoryInterface
      */
     protected $factory;
-    /**
-     * @var MailerTypeInterface
-     */
-    protected $type;
 
     /**
      * @var MailerConfig
@@ -30,13 +27,11 @@ class MailerFacade implements MailerInterface
 
     public function __construct(
         MailerFactoryInterface $factory,
-        MailerTypeInterface $type,
         //
         MailerConfig $config
     )
     {
         $this->factory = $factory;
-        $this->type = $type;
 
         $this->config = $config;
         $this->config->validate();
@@ -48,11 +43,9 @@ class MailerFacade implements MailerInterface
      *
      * @return T
      */
-    public function getDriver($driver, $context = null) : DriverInterface
+    public function getDriver($driver, array $context = []) : DriverInterface
     {
-        $genericDriver = null
-            ?? $this->type->parseDriver($driver, $context)
-            ?? Lib::throw([ 'Unable to create GenericDriver', $driver ]);
+        $genericDriver = GenericDriver::from($driver, $context);
 
         $driverObject = $this->factory->newDriver($genericDriver, $this->config);
 
@@ -62,55 +55,49 @@ class MailerFacade implements MailerInterface
 
     /**
      * @param class-string<T>|T                        $driver
-     * @param GenericMessage|string|array|SymfonyEmail $message
+     * @param GenericMessage|SymfonyEmail|array|string $message
      *
      * @return T
      */
-    public function sendLaterBy($driver, $message, $to = null, $context = null) : DriverInterface
+    public function sendLaterBy($driver, $message, $to = null, array $context = []) : DriverInterface
     {
-        $genericMessage = null
-            ?? $this->type->parseMessage($message, $context)
-            ?? Lib::throw([ 'Unable to create GenericMessage', $driver ]);
+        $driverObject = $this->getDriver($driver, $context);
 
-        $theDriver = $this->getDriver($driver);
+        $genericMessage = GenericMessage::from($message, $context);
 
-        $theDriver = $theDriver->sendLater($genericMessage, $to, $context);
+        $driverObject->sendLater($genericMessage, $to, $context);
 
-        return $theDriver;
+        return $driverObject;
     }
 
     /**
      * @param class-string<T>|T                        $driver
-     * @param GenericMessage|string|array|SymfonyEmail $message
+     * @param GenericMessage|SymfonyEmail|array|string $message
      *
      * @return T
      */
-    public function sendNowBy($driver, $message, $to = null, $context = null) : DriverInterface
+    public function sendNowBy($driver, $message, $to = null, array $context = []) : DriverInterface
     {
-        $genericMessage = null
-            ?? $this->type->parseMessage($message, $context)
-            ?? Lib::throw([ 'Unable to create GenericMessage', $driver ]);
+        $driverObject = $this->getDriver($driver, $context);
 
-        $theDriver = $this->getDriver($driver);
+        $genericMessage = GenericMessage::from($message, $context);
 
-        $theDriver = $theDriver->sendNow($genericMessage, $to, $context);
+        $driverObject = $driverObject->sendNow($genericMessage, $to, $context);
 
-        return $theDriver;
+        return $driverObject;
     }
 
 
     /**
-     * @param GenericMessage|string|array|SymfonyEmail $message
+     * @param GenericMessage|SymfonyEmail|array|string $message
      */
-    public function interpolateMessage($message, array $placeholders = null, $context = null) : GenericMessage
+    public function interpolateMessage($message, array $placeholders = null, array $context = []) : GenericMessage
     {
         $placeholders = $placeholders ?? [];
 
         $theInterpolator = Lib::str()->interpolator();
 
-        $genericMessage = null
-            ?? $this->type->parseMessage($message, $context)
-            ?? Lib::throw([ 'Unable to create GenericMessage', $message ]);
+        $genericMessage = GenericMessage::from($message, $context);
 
         if (null !== $genericMessage->subject) {
             $subject = $theInterpolator->interpolate($genericMessage->subject, $placeholders);

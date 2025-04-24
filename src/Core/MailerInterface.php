@@ -17,28 +17,28 @@ interface MailerInterface
      *
      * @return T
      */
-    public function getDriver($driver, $context = null) : DriverInterface;
+    public function getDriver($driver, array $context = []) : DriverInterface;
 
 
     /**
      * @param class-string<T>|T                        $driver
-     * @param GenericMessage|string|array|SymfonyEmail $message
+     * @param GenericMessage|SymfonyEmail|array|string $message
      *
      * @return T
      */
-    public function sendLaterBy($driver, $message, $to = null, $context = null) : DriverInterface;
+    public function sendLaterBy($driver, $message, $to = null, array $context = []) : DriverInterface;
 
     /**
      * @param class-string<T>|T                        $driver
-     * @param GenericMessage|string|array|SymfonyEmail $message
+     * @param GenericMessage|SymfonyEmail|array|string $message
      *
      * @return T
      */
-    public function sendNowBy($driver, $message, $to = null, $context = null) : DriverInterface;
+    public function sendNowBy($driver, $message, $to = null, array $context = []) : DriverInterface;
 
 
     /**
-     * @param GenericMessage|string|array|SymfonyEmail $message
+     * @param GenericMessage|SymfonyEmail|array|string $message
      */
-    public function interpolateMessage($message, array $placeholders = null, $context = null) : GenericMessage;
+    public function interpolateMessage($message, array $placeholders = null, array $context = []) : GenericMessage;
 }

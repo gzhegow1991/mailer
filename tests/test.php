@@ -98,13 +98,9 @@ $config->configure(function (\Gzhegow\Mailer\Core\MailerConfig $config) use ($ff
     }
 });
 
-// > создаем парсер типов
-$type = new \Gzhegow\Mailer\Core\MailerType();
-
 // > создаем фасад
 $mailer = new \Gzhegow\Mailer\Core\MailerFacade(
     $factory,
-    $type,
     //
     $config
 );
