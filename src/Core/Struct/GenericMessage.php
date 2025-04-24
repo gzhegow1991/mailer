@@ -48,6 +48,39 @@ class GenericMessage implements \Serializable
     }
 
 
+    public function __serialize() : array
+    {
+        $vars = get_object_vars($this);
+
+        $vars = array_filter($vars);
+
+        return $vars;
+    }
+
+    public function __unserialize(array $data) : void
+    {
+        foreach ( $data as $key => $value ) {
+            $this->{$key} = $value;
+        }
+    }
+
+    public function serialize()
+    {
+        $array = $this->__serialize();
+
+        $data = serialize($array);
+
+        return $data;
+    }
+
+    public function unserialize($data)
+    {
+        $array = unserialize($data);
+
+        $this->__unserialize($array);
+    }
+
+
     /**
      * @return static
      */
@@ -197,39 +230,6 @@ class GenericMessage implements \Serializable
         $instance->text = $messageText;
 
         return Lib::refsResult($refs, $instance);
-    }
-
-
-    public function __serialize() : array
-    {
-        $vars = get_object_vars($this);
-
-        $vars = array_filter($vars);
-
-        return $vars;
-    }
-
-    public function __unserialize(array $data) : void
-    {
-        foreach ( $data as $key => $value ) {
-            $this->{$key} = $value;
-        }
-    }
-
-    public function serialize()
-    {
-        $array = $this->__serialize();
-
-        $data = serialize($array);
-
-        return $data;
-    }
-
-    public function unserialize($data)
-    {
-        $array = unserialize($data);
-
-        $this->__unserialize($array);
     }
 
 
