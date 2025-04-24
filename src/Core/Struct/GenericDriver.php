@@ -32,6 +32,26 @@ class GenericDriver
     }
 
 
+    public static function from($from, array $context = [], array $refs = [])
+    {
+        $withErrors = array_key_exists(0, $refs);
+
+        $refs[ 0 ] = $refs[ 0 ] ?? null;
+
+        $instance = null
+            ?? GenericDriver::fromInstance($from, $refs)
+            ?? GenericDriver::fromDriver($from, $context, $refs)
+            ?? GenericDriver::fromString($from, $context, $refs);
+
+        if (! $withErrors) {
+            if (null === $instance) {
+                throw $refs[ 0 ];
+            }
+        }
+
+        return $instance;
+    }
+
     /**
      * @return static|bool|null
      */

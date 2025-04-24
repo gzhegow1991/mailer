@@ -84,7 +84,31 @@ class GenericMessage implements \Serializable
     /**
      * @return static|bool|null
      */
-    public static function fromInstance($from, array $refs = []) // : ?static
+    public static function from($from, array $refs = [])
+    {
+        $withErrors = array_key_exists(0, $refs);
+
+        $refs[ 0 ] = $refs[ 0 ] ?? null;
+
+        $instance = null
+            ?? static::fromInstance($from, $refs)
+            ?? static::fromSymfonyMail($from, $refs)
+            ?? static::fromArray($from, $refs)
+            ?? static::fromString($from, $refs);
+
+        if (! $withErrors) {
+            if (null === $instance) {
+                throw $refs[ 0 ];
+            }
+        }
+
+        return $instance;
+    }
+
+    /**
+     * @return static|bool|null
+     */
+    public static function fromInstance($from, array $refs = [])
     {
         if ($from instanceof static) {
             return Lib::refsResult($refs, $from);
