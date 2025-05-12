@@ -72,7 +72,7 @@ class TelegramDriver implements DriverInterface
         curl_setopt_array($ch, [
             CURLOPT_URL            => "https://api.telegram.org/bot{$botToken}/sendMessage",
             CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_TIMEOUT        => 3,
+            CURLOPT_CONNECTTIMEOUT => 3,
             //
             CURLOPT_POST           => true,
             CURLOPT_POSTFIELDS     => [

@@ -27,10 +27,12 @@ ini_set('memory_limit', '32M');
 
 
 // > настраиваем обработку ошибок
-\Gzhegow\Lib\Lib::errorHandler()
+\Gzhegow\Lib\Lib::entrypoint()
     ->setDirRoot(__DIR__ . '/..')
     //
     ->useErrorReporting()
+    ->useMemoryLimit()
+    ->useTimeLimit()
     ->useErrorHandler()
     ->useExceptionHandler()
 ;
@@ -56,20 +58,17 @@ $ffn = new class {
     }
 
 
-    function assert_stdout(
-        \Closure $fn, array $fnArgs = [],
-        string $expectedStdout = null
-    ) : void
+    function test(\Closure $fn, array $args = []) : \Gzhegow\Lib\Modules\Test\TestRunner\TestRunner
     {
         $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1);
 
-        \Gzhegow\Lib\Lib::test()->assertStdout(
-            $trace,
-            $fn, $fnArgs,
-            $expectedStdout
-        );
+        return \Gzhegow\Lib\Lib::test()->test()
+            ->fn($fn, $args)
+            ->trace($trace)
+        ;
     }
 };
+
 
 
 // >>> ЗАПУСКАЕМ!
@@ -130,6 +129,9 @@ $mailer = new \Gzhegow\Mailer\Core\MailerFacade(
 \Gzhegow\Mailer\Core\Mailer::setFacade($mailer);
 
 
+
+// >>> ТЕСТЫ
+
 // > TEST
 // > создаем дату, временную зону и интервал
 $fn = function () use ($mailer, $ffn) {
@@ -174,12 +176,14 @@ $fn = function () use ($mailer, $ffn) {
             : rmdir($realpath);
     }
 };
-$ffn->assert_stdout($fn, [], '
+$test = $ffn->test($fn);
+$test->expectStdout('
 "TEST 1"
 
 { object # Gzhegow\Mailer\Core\Driver\Email\EmailDriver }
 { object # Gzhegow\Mailer\Core\Driver\Phone\SmsDriver }
 { object # Gzhegow\Mailer\Core\Driver\Social\Telegram\TelegramDriver }
 ');
+$test->run();
 ```
 
