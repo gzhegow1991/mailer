@@ -43,7 +43,7 @@ class Mailer
     /**
      * @param GenericMessage|string|array|SymfonyEmail $message
      */
-    public static function interpolateMessage($message, array $placeholders = null, $context = null) : GenericMessage
+    public static function interpolateMessage($message, ?array $placeholders = null, $context = null) : GenericMessage
     {
         return static::$facade->interpolateMessage($message, $placeholders, $context);
     }

@@ -3,6 +3,7 @@
 namespace Gzhegow\Mailer\Core\Struct;
 
 use Gzhegow\Lib\Lib;
+use Gzhegow\Lib\Modules\Php\Result\Ret;
 use Gzhegow\Lib\Modules\Php\Result\Result;
 use Symfony\Component\Mime\Email as SymfonyEmail;
 
@@ -82,49 +83,55 @@ class GenericMessage implements \Serializable
 
 
     /**
+     * @param Ret $ret
+     *
      * @return static|bool|null
      */
-    public static function from($from, $ctx = null)
+    public static function from($from, $ret = null)
     {
-        Result::parse($cur);
+        $retCur = Result::asValue();
 
         $instance = null
-            ?? static::fromStatic($from, $cur)
-            ?? static::fromSymfonyMail($from, $cur)
-            ?? static::fromArray($from, $cur)
-            ?? static::fromString($from, $cur);
+            ?? static::fromStatic($from, $retCur)
+            ?? static::fromSymfonyMail($from, $retCur)
+            ?? static::fromArray($from, $retCur)
+            ?? static::fromString($from, $retCur);
 
-        if ($cur->isErr()) {
-            return Result::err($ctx, $cur);
+        if ($retCur->isErr()) {
+            return Result::err($ret, $retCur);
         }
 
-        return Result::ok($ctx, $instance);
+        return Result::ok($ret, $instance);
     }
 
     /**
+     * @param Ret $ret
+     *
      * @return static|bool|null
      */
-    public static function fromStatic($from, $ctx = null)
+    public static function fromStatic($from, $ret = null)
     {
         if ($from instanceof static) {
-            return Result::ok($ctx, $from);
+            return Result::ok($ret, $from);
         }
 
         return Result::err(
-            $ctx,
+            $ret,
             [ 'The `from` should be instance of: ' . static::class, $from ],
             [ __FILE__, __LINE__ ]
         );
     }
 
     /**
+     * @param Ret $ret
+     *
      * @return static|bool|null
      */
-    public static function fromSymfonyMail($from, $ctx = null)
+    public static function fromSymfonyMail($from, $ret = null)
     {
         if (! is_a($from, SymfonyEmail::class)) {
             return Result::err(
-                $ctx,
+                $ret,
                 [ 'The `from` should be instance of: ' . SymfonyEmail::class, $from ],
                 [ __FILE__, __LINE__ ]
             );
@@ -143,17 +150,19 @@ class GenericMessage implements \Serializable
 
         $instance->headers = $from->getHeaders();
 
-        return Result::ok($ctx, $instance);
+        return Result::ok($ret, $instance);
     }
 
     /**
+     * @param Ret $ret
+     *
      * @return static|bool|null
      */
-    public static function fromArray($from, $ctx = null)
+    public static function fromArray($from, $ret = null)
     {
         if (! is_array($from)) {
             return Result::err(
-                $ctx,
+                $ret,
                 [ 'The `from` should be array', $from ],
                 [ __FILE__, __LINE__ ]
             );
@@ -161,7 +170,7 @@ class GenericMessage implements \Serializable
 
         if (count($from) < 2) {
             return Result::err(
-                $ctx,
+                $ret,
                 [ 'The `from` should be array with at least 2 elements', $from ],
                 [ __FILE__, __LINE__ ]
             );
@@ -179,7 +188,7 @@ class GenericMessage implements \Serializable
 
         if (! $hasText && ! $hasHtml) {
             return Result::err(
-                $ctx,
+                $ret,
                 [ 'The `from` should contain at least one of `text` (1) or `html` (2) keys', $from ],
                 [ __FILE__, __LINE__ ]
             );
@@ -191,17 +200,19 @@ class GenericMessage implements \Serializable
         if ($hasText) $instance->text = $text;
         if ($hasHtml) $instance->html = $html;
 
-        return Result::ok($ctx, $instance);
+        return Result::ok($ret, $instance);
     }
 
     /**
+     * @param Ret $ret
+     *
      * @return static|bool|null
      */
-    public static function fromString($from, $ctx = null)
+    public static function fromString($from, $ret = null)
     {
         if (! Lib::type()->string_not_empty($messageText, $from)) {
             return Result::err(
-                $ctx,
+                $ret,
                 [ 'The `from` should be non-empty string', $from ],
                 [ __FILE__, __LINE__ ]
             );
@@ -211,7 +222,7 @@ class GenericMessage implements \Serializable
 
         $instance->text = $messageText;
 
-        return Result::ok($ctx, $instance);
+        return Result::ok($ret, $instance);
     }
 
 

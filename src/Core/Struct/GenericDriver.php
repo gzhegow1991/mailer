@@ -3,6 +3,7 @@
 namespace Gzhegow\Mailer\Core\Struct;
 
 use Gzhegow\Lib\Lib;
+use Gzhegow\Lib\Modules\Php\Result\Ret;
 use Gzhegow\Lib\Modules\Php\Result\Result;
 use Gzhegow\Mailer\Core\Driver\DriverInterface;
 
@@ -33,48 +34,54 @@ class GenericDriver
 
 
     /**
+     * @param Ret $ret
+     *
      * @return static|bool|null
      */
-    public static function from($from, array $context = [], $ctx = null)
+    public static function from($from, array $context = [], $ret = null)
     {
-        Result::parse($cur);
+        $retCur = Result::asValue();
 
         $instance = null
-            ?? GenericDriver::fromStatic($from, $cur)
-            ?? GenericDriver::fromDriver($from, $context, $cur)
-            ?? GenericDriver::fromString($from, $context, $cur);
+            ?? GenericDriver::fromStatic($from, $retCur)
+            ?? GenericDriver::fromDriver($from, $context, $retCur)
+            ?? GenericDriver::fromString($from, $context, $retCur);
 
-        if ($cur->isErr()) {
-            return Result::err($ctx, $cur);
+        if ($retCur->isErr()) {
+            return Result::err($ret, $retCur);
         }
 
-        return Result::ok($ctx, $instance);
+        return Result::ok($ret, $instance);
     }
 
     /**
+     * @param Ret $ret
+     *
      * @return static|bool|null
      */
-    public static function fromStatic($from, $ctx = null)
+    public static function fromStatic($from, $ret = null)
     {
         if ($from instanceof static) {
-            return Result::ok($ctx, $from);
+            return Result::ok($ret, $from);
         }
 
         return Result::err(
-            $ctx,
+            $ret,
             [ 'The `from` should be instance of: ' . static::class, $from ],
             [ __FILE__, __LINE__ ]
         );
     }
 
     /**
+     * @param Ret $ret
+     *
      * @return static|bool|null
      */
-    public static function fromDriver($from, array $context = [], $ctx = null)
+    public static function fromDriver($from, array $context = [], $ret = null)
     {
         if (! is_a($from, DriverInterface::class)) {
             return Result::err(
-                $ctx,
+                $ret,
                 [ 'The `from` should be instance of: ' . DriverInterface::class, $from ],
                 [ __FILE__, __LINE__ ]
             );
@@ -85,17 +92,19 @@ class GenericDriver
         $instance->driverClass = get_class($from);
         $instance->context = $context;
 
-        return Result::ok($ctx, $instance);
+        return Result::ok($ret, $instance);
     }
 
     /**
+     * @param Ret $ret
+     *
      * @return static|bool|null
      */
-    public static function fromString($from, array $context = [], $ctx = null)
+    public static function fromString($from, array $context = [], $ret = null)
     {
         if (! Lib::type()->string_not_empty($driverClass, $from)) {
             return Result::err(
-                $ctx,
+                $ret,
                 [ 'The `from` should be non-empty string', $from ],
                 [ __FILE__, __LINE__ ]
             );
@@ -103,7 +112,7 @@ class GenericDriver
 
         if (! is_subclass_of($driverClass, DriverInterface::class)) {
             return Result::err(
-                $ctx,
+                $ret,
                 [ 'The `from` should be subclass of: ' . DriverInterface::class, $from ],
                 [ __FILE__, __LINE__ ]
             );
@@ -113,7 +122,7 @@ class GenericDriver
         $instance->driverClass = $from;
         $instance->context = $context;
 
-        return Result::ok($ctx, $instance);
+        return Result::ok($ret, $instance);
     }
 
 

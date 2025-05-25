@@ -60,7 +60,7 @@ class TelegramDriver implements DriverInterface
 
     protected function apiSendMessage(string $chatId, string $message, $context = null) : array
     {
-        $theJson = Lib::json();
+        $theJson = Lib::format()->json();
 
         // > gzhegow, to get your own `chatId` - write message to your own bot, then execute
         // > https://api.telegram.org/bot<Bot_token>/getUpdates
@@ -104,7 +104,7 @@ class TelegramDriver implements DriverInterface
 
     protected function apiGetUpdates($context = null) : array
     {
-        $theJson = Lib::json();
+        $theJson = Lib::format()->json();
 
         $botToken = $this->config->telegramBotToken;
 

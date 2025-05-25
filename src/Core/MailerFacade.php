@@ -91,7 +91,7 @@ class MailerFacade implements MailerInterface
     /**
      * @param GenericMessage|SymfonyEmail|array|string $message
      */
-    public function interpolateMessage($message, array $placeholders = null, array $context = []) : GenericMessage
+    public function interpolateMessage($message, ?array $placeholders = null, array $context = []) : GenericMessage
     {
         $placeholders = $placeholders ?? [];
 
