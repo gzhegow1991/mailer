@@ -8,9 +8,12 @@ use Gzhegow\Mailer\Exception\LogicException;
 
 
 /**
- * @property bool   $isDebug
+ * @property bool   $isEnabled
+ *
  * @property string $telegramBotToken
- * @property string $telegramBotUsername
+ * @property string $telegramBotLogin
+ *
+ * @property bool   $isDebug
  * @property string $telegramChatIdIfDebug
  */
 class TelegramDriverConfig extends AbstractConfig
@@ -18,7 +21,7 @@ class TelegramDriverConfig extends AbstractConfig
     /**
      * @var bool
      */
-    protected $isDebug;
+    protected $isEnabled;
 
     /**
      * @var string
@@ -27,35 +30,50 @@ class TelegramDriverConfig extends AbstractConfig
     /**
      * @var string
      */
-    protected $telegramBotUsername;
+    protected $telegramBotLogin;
+
+    /**
+     * @var bool
+     */
+    protected $isDebug;
     /**
      * @var string
      */
     protected $telegramChatIdIfDebug;
 
 
-    protected function validation(array &$context = []) : bool
+    protected function validation(array &$refContext = []) : bool
     {
-        $theType = Lib::type();
+        $isEnabled = (bool) $this->isEnabled;
 
-        $this->isDebug = (bool) $this->isDebug;
+        $this->isEnabled = $isEnabled;
 
-        if (! $theType->string_not_empty($result, $this->telegramBotToken)) {
-            throw new LogicException(
-                [ 'The `telegramBotToken` should be non-empty string', $this ]
-            );
-        }
+        if ($isEnabled) {
+            $theType = Lib::type();
 
-        if (! $theType->string_not_empty($result, $this->telegramBotUsername)) {
-            throw new LogicException(
-                [ 'The `telegramBotUsername` should be non-empty string', $this ]
-            );
-        }
+            if (! $theType->string_not_empty($r, $this->telegramBotToken)) {
+                throw new LogicException(
+                    [ 'The `telegramBotToken` should be non-empty string', $this ]
+                );
+            }
 
-        if (! $theType->string_not_empty($result, $this->telegramChatIdIfDebug)) {
-            throw new LogicException(
-                [ 'The `telegramChatIdIfDebug` should be non-empty string', $this ]
-            );
+            if (! $theType->string_not_empty($r, $this->telegramBotLogin)) {
+                throw new LogicException(
+                    [ 'The `telegramBotLogin` should be non-empty string', $this ]
+                );
+            }
+
+            $isDebug = (bool) $this->isDebug;
+
+            $this->isDebug = $isDebug;
+
+            if ($isDebug) {
+                if (! $theType->string_not_empty($r, $this->telegramChatIdIfDebug)) {
+                    throw new LogicException(
+                        [ 'The `telegramChatIdIfDebug` should be non-empty string', $this ]
+                    );
+                }
+            }
         }
 
         return true;

@@ -2,41 +2,29 @@
 
 namespace Gzhegow\Mailer\Package\Symfony\Component\Mailer\Transport;
 
-use Gzhegow\Lib\Lib;
 use Symfony\Component\Mailer\Transport\Dsn;
+use Gzhegow\Mailer\Exception\LogicException;
 use Symfony\Component\Mailer\Transport\TransportInterface;
 use Symfony\Component\Mailer\Transport\TransportFactoryInterface;
 
 
 class FilesystemTransportFactory implements TransportFactoryInterface
 {
-    /**
-     * @var string
-     */
-    protected $directoryDefault;
-
-
-    public function __construct(string $directoryDefault)
-    {
-        $theParse = Lib::parse();
-
-        $_directoryDefault = null
-            ?? $theParse->dirpath_realpath($directoryDefault)
-            ?? Lib::throw([ 'Directory is missing: ' . $directoryDefault, $directoryDefault ]);
-
-        $this->directoryDefault = $_directoryDefault;
-    }
-
-
     public function create(Dsn $dsn) : TransportInterface
     {
-        $dir = $dsn->getOption('directory', $this->directoryDefault);
+        if ($this === ($optionDirectory = $dsn->getOption('directory', $this))) {
+            throw new LogicException(
+                [ 'The `directory` options must be passed to DSN', $dsn ]
+            );
+        }
 
-        $subDir = date('ymd_H0000');
-        $dir = $dir . '/' . $subDir;
+        $now = new \DateTimeImmutable();
 
-        $transport = new FilesystemTransport();
-        $transport->setDirectory($dir);
+        $subDirectory = $now->format('ymd_H0000');
+
+        $directory = $optionDirectory . '/' . $subDirectory;
+
+        $transport = new FilesystemTransport($directory);
 
         return $transport;
     }

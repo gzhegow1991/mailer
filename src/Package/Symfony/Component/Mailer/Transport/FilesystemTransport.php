@@ -5,7 +5,9 @@ namespace Gzhegow\Mailer\Package\Symfony\Component\Mailer\Transport;
 use Gzhegow\Lib\Lib;
 use Symfony\Component\Mailer\SentMessage;
 use Symfony\Component\Mime\Email as SymfonyEmail;
+use Psr\Log\LoggerInterface as PsrLoggerInterface;
 use Symfony\Component\Mailer\Transport\AbstractTransport;
+use Psr\EventDispatcher\EventDispatcherInterface as PsrEventDispatcherInterface;
 
 
 class FilesystemTransport extends AbstractTransport implements
@@ -25,21 +27,27 @@ class FilesystemTransport extends AbstractTransport implements
     protected $filesSent = [];
 
 
-    public function __toString() : string
+    public function __construct(
+        string $directory,
+        //
+        ?PsrEventDispatcherInterface $dispatcher = null,
+        ?PsrLoggerInterface $logger = null
+    )
     {
-        return 'filesystem://default?directory=' . $this->directory;
+        Lib::parseThrow()->dirpath_realpath($directory);
+
+        $this->directory = $directory;
+
+        parent::__construct(
+            $dispatcher,
+            $logger
+        );
     }
 
 
-    public function setDirectory(string $directory) : void
+    public function __toString() : string
     {
-        $theParse = Lib::parse();
-
-        $dirpath = null
-            ?? $theParse->dirpath($directory)
-            ?? Lib::throw([ 'The `directory` should be valid directory path: ' . $directory, $directory ]);
-
-        $this->directory = $dirpath;
+        return 'filesystem://default?directory=' . $this->directory;
     }
 
 
@@ -58,7 +66,7 @@ class FilesystemTransport extends AbstractTransport implements
 
     protected function doSend(SentMessage $message) : void
     {
-        $theJson = Lib::json();
+        $theJson = Lib::format()->json();
         $theParse = Lib::parse();
         $theStr = Lib::str();
 

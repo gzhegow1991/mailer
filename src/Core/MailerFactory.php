@@ -28,22 +28,23 @@ class MailerFactory implements MailerFactoryInterface
 
                     break;
 
-                case SmsDriver::class:
-                    $telegramDriver = new TelegramDriver($config->telegramDriver);
-
-                    $driverObject = new SmsDriver($telegramDriver, $config->smsDriver);
-
-                    break;
-
                 case TelegramDriver::class:
                     $driverObject = new TelegramDriver($config->telegramDriver);
 
                     break;
+
+                // // > todo
+                // case SmsDriver::class:
+                //     $driverObject = new SmsDriver($config->smsDriver);
+                //
+                //     break;
             }
         }
 
         if (null === $driverObject) {
-            throw new LogicException([ 'Unable to create driver', $driver ]);
+            throw new LogicException(
+                [ 'Unable to create driver', $driver ]
+            );
         }
 
         return $driverObject;

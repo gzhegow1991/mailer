@@ -4,11 +4,11 @@ namespace Gzhegow\Mailer\Core\Driver\Email;
 
 use Symfony\Component\Mailer\Mailer;
 use Gzhegow\Mailer\Core\Struct\GenericMessage;
-use Symfony\Component\Mime\Part\DataPart as SymfonyDataPart;
-use Gzhegow\Mailer\Core\Driver\DriverInterface;
 use Gzhegow\Mailer\Exception\RuntimeException;
+use Gzhegow\Mailer\Core\Driver\DriverInterface;
 use Symfony\Component\Mime\Email as SymfonyEmail;
 use Symfony\Component\Mailer\Transport\Dsn as SymfonyDsn;
+use Symfony\Component\Mime\Part\DataPart as SymfonyDataPart;
 use Symfony\Component\Mailer\Transport\NullTransportFactory;
 use Symfony\Component\Mailer\Transport\NativeTransportFactory;
 use Symfony\Component\Mailer\Transport as SymfonyTransportParser;
@@ -145,25 +145,23 @@ class EmailDriver implements DriverInterface
 
     protected function newSymfonyMailer() : SymfonyMailerInterface
     {
-        $filesystemTransportDirectory = null
-            ?? $this->config->symfonyMailerFilesystemTransportDirectory
-            ?? __DIR__ . '/var/email';
+        $symfonyMailerDsn = $this->config->symfonyMailerDsn;
 
-        $mailerDsn = $this->config->symfonyMailerDsn;
+        $symfonyMailerDsnObject = SymfonyDsn::fromString($symfonyMailerDsn);
 
-        $dsn = SymfonyDsn::fromString($mailerDsn);
-
-        $transportParser = new SymfonyTransportParser([
+        $symfonyTransportParser = new SymfonyTransportParser([
             new EsmtpTransportFactory(),
             new NativeTransportFactory(),
             new SendmailTransportFactory(),
             //
-            new FilesystemTransportFactory($filesystemTransportDirectory),
+            new FilesystemTransportFactory(),
             new NullTransportFactory(),
         ]);
 
-        $transport = $transportParser->fromDsnObject($dsn);
+        $symfonyTransport = $symfonyTransportParser->fromDsnObject($symfonyMailerDsnObject);
 
-        return new Mailer($transport);
+        $mailer = new Mailer($symfonyTransport);
+
+        return $mailer;
     }
 }
