@@ -12,6 +12,11 @@ use Symfony\Component\Mime\Email as SymfonyEmail;
  */
 class Mailer
 {
+    private function __construct()
+    {
+    }
+
+
     /**
      * @param class-string<T>|DriverInterface $driver
      */
