@@ -22,7 +22,7 @@ php test.php
 // > настраиваем PHP
 \Gzhegow\Lib\Lib::entrypoint()
     ->setDirRoot(__DIR__ . '/..')
-    ->useAllDefault()
+    ->useAllRecommended()
 ;
 
 
