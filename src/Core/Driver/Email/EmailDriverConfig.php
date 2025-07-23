@@ -4,17 +4,19 @@ namespace Gzhegow\Mailer\Core\Driver\Email;
 
 use Gzhegow\Lib\Lib;
 use Gzhegow\Lib\Config\AbstractConfig;
-use Gzhegow\Mailer\Exception\LogicException;
+use Gzhegow\Lib\Exception\LogicException;
 
 
 /**
  * @property bool   $isEnabled
+ * @property bool   $isDebug
  *
  * @property string $symfonyMailerDsn
- * @property string $symfonyMailerEmailFrom
  *
- * @property bool   $isDebug
- * @property string $symfonyMailerEmailToIfDebug
+ * @property string $emailFrom
+ * @property string $emailNameFrom
+ *
+ * @property string $emailToIfDebug
  */
 class EmailDriverConfig extends AbstractConfig
 {
@@ -22,61 +24,66 @@ class EmailDriverConfig extends AbstractConfig
      * @var bool
      */
     protected $isEnabled;
+    /**
+     * @var bool
+     */
+    protected $isDebug;
 
     /**
      * @var string
      */
     protected $symfonyMailerDsn;
-    /**
-     * @var string
-     */
-    protected $symfonyMailerEmailFrom;
 
     /**
-     * @var bool
+     * @var string|null
      */
-    protected $isDebug;
+    protected $emailFrom;
+    /**
+     * @var string|null
+     */
+    protected $emailNameFrom;
+
     /**
      * @var string
      */
-    protected $symfonyMailerEmailToIfDebug;
+    protected $emailToIfDebug;
 
 
     protected function validation(array &$refContext = []) : bool
     {
         $isEnabled = (bool) $this->isEnabled;
+        $isDebug = (bool) $this->isDebug;
 
         $this->isEnabled = $isEnabled;
+        $this->isDebug = $isDebug;
 
         if ($isEnabled) {
             $theType = Lib::type();
 
-            $this->isDebug = (bool) $this->isDebug;
+            $theType->string_not_empty($this->symfonyMailerDsn)->orThrow();
 
-            if (! $theType->string_not_empty($r, $this->symfonyMailerDsn)) {
-                throw new LogicException(
-                    [ 'The `symfonyMailerDsn` should be non-empty string', $this ]
-                );
+            if (null !== $this->emailFrom) {
+                $theType->email($this->emailFrom)->orThrow();
             }
 
-            if (null !== $this->symfonyMailerEmailFrom) {
-                if (! filter_var($this->symfonyMailerEmailFrom, FILTER_VALIDATE_EMAIL)) {
+            if (null !== $this->emailNameFrom) {
+                $theType->string_not_empty($this->emailNameFrom)->orThrow();
+
+                if (preg_match('[\<\>]', $this->emailNameFrom)) {
                     throw new LogicException(
-                        [ 'The `symfonyMailerEmailFrom` should be valid email address', $this ]
+                        [
+                            ''
+                            . 'The `emailNameFrom` should not contain symbols:'
+                            . '[ ' . implode(' ][ ', [ "&lt;", "&gt;" ]) . ' ]',
+                            //
+                            $this,
+                        ]
                     );
                 }
             }
-
-            $isDebug = (bool) $this->isDebug;
-
-            $this->isDebug = $isDebug;
 
             if ($isDebug) {
-                if (! filter_var($this->symfonyMailerEmailToIfDebug, FILTER_VALIDATE_EMAIL)) {
-                    throw new LogicException(
-                        [ 'The `symfonyMailerEmailToIfDebug` should be valid email address', $this ]
-                    );
-                }
+                $theType->email($this->emailToIfDebug)->orThrow();
             }
         }
 

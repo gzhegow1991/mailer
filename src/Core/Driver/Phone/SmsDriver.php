@@ -2,6 +2,7 @@
 
 namespace Gzhegow\Mailer\Core\Driver\Phone;
 
+use Gzhegow\Lib\Lib;
 use Gzhegow\Mailer\Core\Struct\GenericMessage;
 use Gzhegow\Mailer\Core\Driver\DriverInterface;
 
@@ -21,44 +22,36 @@ class SmsDriver implements DriverInterface
     }
 
 
-    public function sendLater(GenericMessage $message, $to = '', $context = null) : DriverInterface
+    public function sendLater(GenericMessage $message, $to = '', ?array $context = null) : DriverInterface
     {
-        // // > todo
-        //
-        // $theType = Lib::type();
-        //
-        // if ($theType->phone($toPhone, $to)) {
-        //     if ($theType->phone_fake($toPhoneFake, $toPhone)) {
-        //         return $this;
-        //     }
-        //
-        //     if ($theType->phone_real($toPhoneFake, $toPhone)) {
-        //         return $this;
-        //     }
-        //
-        //     return $this;
-        // }
+        // todo
+
+        $this->sendNow($message, $to, $context);
 
         return $this;
     }
 
-    public function sendNow(GenericMessage $message, $to = '', $context = null) : DriverInterface
+    public function sendNow(GenericMessage $message, $to = '', ?array $context = null) : DriverInterface
     {
-        // // > todo
-        //
-        // $theType = Lib::type();
-        //
-        // if ($theType->phone($toPhone, $to)) {
-        //     if ($theType->phone_fake($toPhoneFake, $toPhone)) {
-        //         return $this;
-        //     }
-        //
-        //     if ($theType->phone_real($toPhoneFake, $toPhone)) {
-        //         return $this;
-        //     }
-        //
-        //     return $this;
-        // }
+        $theType = Lib::type();
+
+        $isDebug = $this->config->isDebug;
+
+        $phoneTo = null
+            ?? ($isDebug ? $this->config->phoneToIfDebug : null)
+            ?? ($theType->phone($to)->orThrow());
+
+        if ($theType->phone_fake($phoneTo)->isOk()) {
+            // todo
+
+            return $this;
+        }
+
+        if ($theType->phone_real($phoneTo, $region = '')->isOk()) {
+            // todo
+
+            return $this;
+        }
 
         return $this;
     }

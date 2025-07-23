@@ -2,6 +2,7 @@
 
 namespace Gzhegow\Mailer\Core\Driver\Email;
 
+use Gzhegow\Lib\Lib;
 use Symfony\Component\Mailer\Mailer;
 use Gzhegow\Mailer\Core\Struct\GenericMessage;
 use Gzhegow\Mailer\Exception\RuntimeException;
@@ -55,14 +56,16 @@ class EmailDriver implements DriverInterface
     }
 
 
-    public function sendLater(GenericMessage $message, $to = null, $context = null) : DriverInterface
+    public function sendLater(GenericMessage $message, $to = null, ?array $context = null) : DriverInterface
     {
+        // > todo
+
         $this->sendNow($message, $to, $context);
 
         return $this;
     }
 
-    public function sendNow(GenericMessage $message, $to = null, $context = null) : DriverInterface
+    public function sendNow(GenericMessage $message, $to = null, ?array $context = null) : DriverInterface
     {
         $isDebug = $this->config->isDebug;
 
@@ -110,23 +113,34 @@ class EmailDriver implements DriverInterface
         }
 
         if (! $symfonyEmail->getFrom()) {
-            $mailerEmailFrom = $this->config->symfonyMailerEmailFrom;
+            $mailerEmailFrom = $this->config->emailFrom;
+            $mailerEmailNameFrom = $this->config->emailNameFrom;
 
+            $mailerAddressFrom = null;
             if (null !== $mailerEmailFrom) {
-                $symfonyEmail->from($mailerEmailFrom);
+                $mailerAddressFrom = $mailerEmailFrom;
+            }
+            if (null !== $mailerEmailNameFrom) {
+                $mailerAddressFrom .= ' <' . $mailerEmailNameFrom . '>';
+            }
+
+            if (null !== $mailerAddressFrom) {
+                $symfonyEmail->from($mailerAddressFrom);
             }
         }
 
         if ($isDebug) {
-            $mailerEmailTo = $this->config->symfonyMailerEmailToIfDebug;
+            $mailerEmailTo = $this->config->emailToIfDebug;
 
             $symfonyEmail->to($mailerEmailTo);
 
         } else {
             if (! $symfonyEmail->getTo()) {
-                $_to = (array) $to;
+                $thePhp = Lib::php();
 
-                $symfonyEmail->to(...$_to);
+                $toList = $thePhp->to_list($to);
+
+                $symfonyEmail->to(...$toList);
             }
         }
 

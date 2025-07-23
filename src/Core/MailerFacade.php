@@ -45,7 +45,7 @@ class MailerFacade implements MailerInterface
      */
     public function getDriver($driver, array $context = []) : DriverInterface
     {
-        $genericDriver = GenericDriver::from($driver, $context);
+        $genericDriver = GenericDriver::from($driver, $context)->orThrow();
 
         $driverObject = $this->factory->newDriver($genericDriver, $this->config);
 
@@ -63,7 +63,7 @@ class MailerFacade implements MailerInterface
     {
         $driverObject = $this->getDriver($driver, $context);
 
-        $genericMessage = GenericMessage::from($message);
+        $genericMessage = GenericMessage::from($message)->orThrow();
 
         $driverObject->sendLater($genericMessage, $to, $context);
 
@@ -80,7 +80,7 @@ class MailerFacade implements MailerInterface
     {
         $driverObject = $this->getDriver($driver, $context);
 
-        $genericMessage = GenericMessage::from($message);
+        $genericMessage = GenericMessage::from($message)->orThrow();
 
         $driverObject = $driverObject->sendNow($genericMessage, $to, $context);
 
@@ -95,24 +95,24 @@ class MailerFacade implements MailerInterface
     {
         $placeholders = $placeholders ?? [];
 
-        $theInterpolator = Lib::str()->interpolator();
+        $theStrInterpolator = Lib::strInterpolator();
 
-        $genericMessage = GenericMessage::from($message);
+        $genericMessage = GenericMessage::from($message)->orThrow();
 
         if (null !== $genericMessage->subject) {
-            $subject = $theInterpolator->interpolate($genericMessage->subject, $placeholders);
+            $subject = $theStrInterpolator->interpolate($genericMessage->subject, $placeholders);
 
             $genericMessage->subject = $subject;
         }
 
         if (null !== $genericMessage->text) {
-            $text = $theInterpolator->interpolate($genericMessage->text, $placeholders);
+            $text = $theStrInterpolator->interpolate($genericMessage->text, $placeholders);
 
             $genericMessage->text = $text;
         }
 
         if (null !== $genericMessage->html) {
-            $html = $theInterpolator->interpolate($genericMessage->html, $placeholders);
+            $html = $theStrInterpolator->interpolate($genericMessage->html, $placeholders);
 
             $genericMessage->html = $html;
         }

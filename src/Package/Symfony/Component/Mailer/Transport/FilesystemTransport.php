@@ -34,9 +34,11 @@ class FilesystemTransport extends AbstractTransport implements
         ?PsrLoggerInterface $logger = null
     )
     {
-        Lib::parseThrow()->dirpath_realpath($directory);
+        $theType = Lib::type();
 
-        $this->directory = $directory;
+        $directoryRealpath = $theType->dirpath_realpath($directory)->orThrow();
+
+        $this->directory = $directoryRealpath;
 
         parent::__construct(
             $dispatcher,
@@ -66,13 +68,14 @@ class FilesystemTransport extends AbstractTransport implements
 
     protected function doSend(SentMessage $message) : void
     {
-        $theJson = Lib::format()->json();
-        $theParse = Lib::parse();
+        $theFormatJson = Lib::formatJson();
         $theStr = Lib::str();
+        $theType = Lib::type();
 
-        $dirpath = $theParse->dirpath($this->directory);
-        if (! file_exists($dirpath)) {
-            mkdir($dirpath, 0775, true);
+        $directoryDirpath = $theType->dirpath($this->directory, true)->orThrow();
+
+        if (! file_exists($directoryDirpath)) {
+            mkdir($directoryDirpath, 0775, true);
         }
 
         $email = $message->getOriginalMessage();
@@ -110,9 +113,9 @@ class FilesystemTransport extends AbstractTransport implements
             ],
         ] = $email->__serialize();
 
-        $content = $theJson->json_print($content);
+        $json = $theFormatJson->json_print([], $content);
 
-        file_put_contents($filePath, $content);
+        file_put_contents($filePath, $json);
 
         $this->filesSent[ $filePath ] = true;
     }

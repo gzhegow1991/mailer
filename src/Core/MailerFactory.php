@@ -6,6 +6,7 @@ use Gzhegow\Mailer\Exception\LogicException;
 use Gzhegow\Mailer\Core\Struct\GenericDriver;
 use Gzhegow\Mailer\Exception\RuntimeException;
 use Gzhegow\Mailer\Core\Driver\DriverInterface;
+use Gzhegow\Mailer\Core\Driver\Phone\SmsDriver;
 use Gzhegow\Mailer\Core\Driver\Email\EmailDriver;
 use Gzhegow\Mailer\Core\Driver\Social\Telegram\TelegramDriver;
 
@@ -45,17 +46,16 @@ class MailerFactory implements MailerFactoryInterface
 
                     break;
 
-                // // > todo
-                // case SmsDriver::class:
-                //     if (! $config->smsDriver->isEnabled) {
-                //         throw new RuntimeException(
-                //             [ 'The `smsDriver` is disabled in configuration', $config ]
-                //         );
-                //     }
-                //
-                //     $driverObject = new \Gzhegow\Mailer\Core\Driver\Phone\SmsDriver($config->smsDriver);
-                //
-                //     break;
+                case SmsDriver::class:
+                    if (! $config->smsDriver->isEnabled) {
+                        throw new RuntimeException(
+                            [ 'The `smsDriver` is disabled in configuration', $config ]
+                        );
+                    }
+
+                    $driverObject = new \Gzhegow\Mailer\Core\Driver\Phone\SmsDriver($config->smsDriver);
+
+                    break;
             }
         }
 

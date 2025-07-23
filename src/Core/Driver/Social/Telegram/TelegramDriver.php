@@ -23,25 +23,24 @@ class TelegramDriver implements DriverInterface
     }
 
 
-    public function sendLater(GenericMessage $message, $to = '', $context = null) : DriverInterface
+    public function sendLater(GenericMessage $message, $to = '', ?array $context = null) : DriverInterface
     {
         $this->sendNow($message, $to, $context);
 
         return $this;
     }
 
-    public function sendNow(GenericMessage $message, $to = '', $context = null) : DriverInterface
+    public function sendNow(GenericMessage $message, $to = '', ?array $context = null) : DriverInterface
     {
-        $theParse = Lib::parse();
+        $theType = Lib::type();
 
         $isDebug = $this->config->isDebug;
 
-        $messageText = $message->getText();
-
         $chatId = null
-            ?? ($isDebug ? $this->config->telegramChatIdIfDebug : null)
-            ?? $theParse->string_not_empty($to)
-            ?? Lib::throw([ 'The `config.telegram.telegramChatIdIfDebug` should be non-empty string' ]);
+            ?? ($isDebug ? $this->config->telegramChatIdToIfDebug : null)
+            ?? ($theType->string_not_empty($to)->orThrow());
+
+        $messageText = $message->getText();
 
         $this->apiSendMessage($chatId, $messageText, $context);
 
@@ -49,11 +48,11 @@ class TelegramDriver implements DriverInterface
     }
 
 
-    protected function apiSendMessage(string $chatId, string $message, $context = null) : array
+    protected function apiSendMessage(string $chatId, string $message, ?array $context = null) : array
     {
-        $theJson = Lib::format()->json();
+        $theFormatJson = Lib::formatJson();
 
-        // > gzhegow, to get your own `chatId` - write message to your own bot, then execute
+        // > @gzhegow, to get your own `chatId` - write message to your own bot, then execute
         // > https://api.telegram.org/bot<Bot_token>/getUpdates
 
         $botToken = $this->config->telegramBotToken;
@@ -76,26 +75,30 @@ class TelegramDriver implements DriverInterface
             ],
         ]);
 
-        $res = curl_exec($ch);
+        $content = curl_exec($ch);
 
         if (curl_errno($ch)) {
-            throw new RuntimeException([ 'Curl error occured: ' . curl_error($ch) ], $ch);
+            throw new RuntimeException(
+                [ 'Curl error occured: ' . curl_error($ch) ], $ch
+            );
         }
 
         if (200 !== ($httpCode = curl_getinfo($ch, CURLINFO_RESPONSE_CODE))) {
-            throw new RuntimeException([ 'Response code is not 200: ' . $httpCode, $ch ]);
+            throw new RuntimeException(
+                [ 'Response code is not 200: ' . $httpCode, $ch ]
+            );
         }
 
         curl_close($ch);
 
-        $response = $theJson->json_decode($res, true);
+        $response = $theFormatJson->json_decode([], $content, true);
 
         return $response;
     }
 
     protected function apiGetUpdates($context = null) : array
     {
-        $theJson = Lib::format()->json();
+        $theFormatJson = Lib::formatJson();
 
         $botToken = $this->config->telegramBotToken;
 
@@ -111,7 +114,7 @@ class TelegramDriver implements DriverInterface
             ],
         ]);
 
-        $res = curl_exec($ch);
+        $content = curl_exec($ch);
 
         if (curl_errno($ch)) {
             throw new RuntimeException([ 'Curl error occured: ' . curl_error($ch) ], $ch);
@@ -123,7 +126,7 @@ class TelegramDriver implements DriverInterface
 
         curl_close($ch);
 
-        $response = $theJson->json_decode($res, true);
+        $response = $theFormatJson->json_decode([], $content, true);
 
         return $response;
     }

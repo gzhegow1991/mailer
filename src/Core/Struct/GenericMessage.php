@@ -3,8 +3,7 @@
 namespace Gzhegow\Mailer\Core\Struct;
 
 use Gzhegow\Lib\Lib;
-use Gzhegow\Lib\Modules\Php\Result\Ret;
-use Gzhegow\Lib\Modules\Php\Result\Result;
+use Gzhegow\Lib\Modules\Type\Ret;
 use Symfony\Component\Mime\Email as SymfonyEmail;
 
 
@@ -83,55 +82,49 @@ class GenericMessage implements \Serializable
 
 
     /**
-     * @param Ret $ret
-     *
-     * @return static|bool|null
+     * @return static|Ret<static>
      */
-    public static function from($from, $ret = null)
+    public static function from($from, ?array $fallback = null)
     {
-        $retCur = Result::asValue();
+        $ret = Ret::new();
 
         $instance = null
-            ?? static::fromStatic($from, $retCur)
-            ?? static::fromSymfonyMail($from, $retCur)
-            ?? static::fromArray($from, $retCur)
-            ?? static::fromString($from, $retCur);
+            ?? static::fromStatic($from)->orNull($ret)
+            ?? static::fromSymfonyMail($from)->orNull($ret)
+            ?? static::fromArray($from)->orNull($ret)
+            ?? static::fromString($from)->orNull($ret);
 
-        if ($retCur->isErr()) {
-            return Result::err($ret, $retCur);
+        if ($ret->isFail()) {
+            return Ret::throw($fallback, $ret);
         }
 
-        return Result::ok($ret, $instance);
+        return Ret::ok($fallback, $instance);
     }
 
     /**
-     * @param Ret $ret
-     *
-     * @return static|bool|null
+     * @return static|Ret<static>
      */
-    public static function fromStatic($from, $ret = null)
+    public static function fromStatic($from, ?array $fallback = null)
     {
         if ($from instanceof static) {
-            return Result::ok($ret, $from);
+            return Ret::ok($fallback, $from);
         }
 
-        return Result::err(
-            $ret,
+        return Ret::throw(
+            $fallback,
             [ 'The `from` should be instance of: ' . static::class, $from ],
             [ __FILE__, __LINE__ ]
         );
     }
 
     /**
-     * @param Ret $ret
-     *
-     * @return static|bool|null
+     * @return static|Ret<static>
      */
-    public static function fromSymfonyMail($from, $ret = null)
+    public static function fromSymfonyMail($from, ?array $fallback = null)
     {
         if (! is_a($from, SymfonyEmail::class)) {
-            return Result::err(
-                $ret,
+            return Ret::throw(
+                $fallback,
                 [ 'The `from` should be instance of: ' . SymfonyEmail::class, $from ],
                 [ __FILE__, __LINE__ ]
             );
@@ -150,79 +143,90 @@ class GenericMessage implements \Serializable
 
         $instance->headers = $from->getHeaders();
 
-        return Result::ok($ret, $instance);
+        return Ret::ok($fallback, $instance);
     }
 
     /**
-     * @param Ret $ret
-     *
-     * @return static|bool|null
+     * @return static|Ret<static>
      */
-    public static function fromArray($from, $ret = null)
+    public static function fromArray($from, ?array $fallback = null)
     {
         if (! is_array($from)) {
-            return Result::err(
-                $ret,
+            return Ret::throw(
+                $fallback,
                 [ 'The `from` should be array', $from ],
                 [ __FILE__, __LINE__ ]
             );
         }
 
         if (count($from) < 2) {
-            return Result::err(
-                $ret,
+            return Ret::throw(
+                $fallback,
                 [ 'The `from` should be array with at least 2 elements', $from ],
                 [ __FILE__, __LINE__ ]
             );
         }
 
-        $_from = array_values($from);
+        $fromArray = array_values($from);
 
-        [ $subject, $text, $html ] = $_from + [ 2 => '' ];
+        [ $subject, $text, $html ] = $fromArray + [ null, null, null ];
 
         $theType = Lib::type();
 
-        $hasSubject = $theType->string_not_empty($subject, $subject);
-        $hasText = $theType->string_not_empty($text, $text);
-        $hasHtml = $theType->string_not_empty($html, $html);
+        $hasSubject = (null !== $subject);
+        $hasText = (null !== $text);
+        $hasHtml = (null !== $html);
+
+        $subjectStringNotEmpty = null;
+        if ($hasSubject) {
+            $subjectStringNotEmpty = $theType->string_not_empty($subject)->orThrow();
+        }
 
         if (! $hasText && ! $hasHtml) {
-            return Result::err(
-                $ret,
+            return Ret::throw(
+                $fallback,
                 [ 'The `from` should contain at least one of `text` (1) or `html` (2) keys', $from ],
                 [ __FILE__, __LINE__ ]
             );
         }
 
+        $textStringNotEmpty = null;
+        if ($hasText) {
+            $textStringNotEmpty = $theType->string_not_empty($text)->orThrow();
+        }
+
+        $htmlStringNotEmpty = null;
+        if ($hasHtml) {
+            $htmlStringNotEmpty = $theType->string_not_empty($html)->orThrow();
+        }
+
         $instance = new GenericMessage();
 
-        if ($hasSubject) $instance->subject = $subject;
-        if ($hasText) $instance->text = $text;
-        if ($hasHtml) $instance->html = $html;
+        if ($hasSubject) $instance->subject = $subjectStringNotEmpty;
+        if ($hasText) $instance->text = $textStringNotEmpty;
+        if ($hasHtml) $instance->html = $htmlStringNotEmpty;
 
-        return Result::ok($ret, $instance);
+        return Ret::ok($fallback, $instance);
     }
 
     /**
-     * @param Ret $ret
-     *
-     * @return static|bool|null
+     * @return static|Ret<static>
      */
-    public static function fromString($from, $ret = null)
+    public static function fromString($from, ?array $fallback = null)
     {
-        if (! Lib::type()->string_not_empty($messageText, $from)) {
-            return Result::err(
-                $ret,
-                [ 'The `from` should be non-empty string', $from ],
-                [ __FILE__, __LINE__ ]
-            );
+        $theType = Lib::type();
+
+        if (! $theType->string_not_empty($from)->isOk([ &$fromStringNotEmpty, &$ret ])) {
+            return Ret::throw($fallback, $ret);
         }
+
+        $messageText = $fromStringNotEmpty;
 
         $instance = new GenericMessage();
 
         $instance->text = $messageText;
 
-        return Result::ok($ret, $instance);
+        return Ret::ok($fallback, $instance);
     }
 
 

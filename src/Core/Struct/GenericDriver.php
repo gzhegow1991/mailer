@@ -3,8 +3,7 @@
 namespace Gzhegow\Mailer\Core\Struct;
 
 use Gzhegow\Lib\Lib;
-use Gzhegow\Lib\Modules\Php\Result\Ret;
-use Gzhegow\Lib\Modules\Php\Result\Result;
+use Gzhegow\Lib\Modules\Type\Ret;
 use Gzhegow\Mailer\Core\Driver\DriverInterface;
 
 
@@ -34,54 +33,48 @@ class GenericDriver
 
 
     /**
-     * @param Ret $ret
-     *
-     * @return static|bool|null
+     * @return static|Ret<static>
      */
-    public static function from($from, array $context = [], $ret = null)
+    public static function from($from, array $context = [], ?array $fallback = null)
     {
-        $retCur = Result::asValue();
+        $ret = Ret::new();
 
         $instance = null
-            ?? GenericDriver::fromStatic($from, $retCur)
-            ?? GenericDriver::fromDriver($from, $context, $retCur)
-            ?? GenericDriver::fromString($from, $context, $retCur);
+            ?? GenericDriver::fromStatic($from)->orNull($ret)
+            ?? GenericDriver::fromDriver($from, $context)->orNull($ret)
+            ?? GenericDriver::fromString($from, $context)->orNull($ret);
 
-        if ($retCur->isErr()) {
-            return Result::err($ret, $retCur);
+        if ($ret->isFail()) {
+            return Ret::throw($fallback, $ret);
         }
 
-        return Result::ok($ret, $instance);
+        return Ret::ok($fallback, $instance);
     }
 
     /**
-     * @param Ret $ret
-     *
-     * @return static|bool|null
+     * @return static|Ret<static>
      */
-    public static function fromStatic($from, $ret = null)
+    public static function fromStatic($from, ?array $fallback = null)
     {
         if ($from instanceof static) {
-            return Result::ok($ret, $from);
+            return Ret::ok($fallback, $from);
         }
 
-        return Result::err(
-            $ret,
+        return Ret::throw(
+            $fallback,
             [ 'The `from` should be instance of: ' . static::class, $from ],
             [ __FILE__, __LINE__ ]
         );
     }
 
     /**
-     * @param Ret $ret
-     *
-     * @return static|bool|null
+     * @return static|Ret<static>
      */
-    public static function fromDriver($from, array $context = [], $ret = null)
+    public static function fromDriver($from, array $context = [], ?array $fallback = null)
     {
         if (! is_a($from, DriverInterface::class)) {
-            return Result::err(
-                $ret,
+            return Ret::throw(
+                $fallback,
                 [ 'The `from` should be instance of: ' . DriverInterface::class, $from ],
                 [ __FILE__, __LINE__ ]
             );
@@ -92,27 +85,25 @@ class GenericDriver
         $instance->driverClass = get_class($from);
         $instance->context = $context;
 
-        return Result::ok($ret, $instance);
+        return Ret::ok($fallback, $instance);
     }
 
     /**
-     * @param Ret $ret
-     *
-     * @return static|bool|null
+     * @return static|Ret<static>
      */
-    public static function fromString($from, array $context = [], $ret = null)
+    public static function fromString($from, array $context = [], ?array $fallback = null)
     {
-        if (! Lib::type()->string_not_empty($driverClass, $from)) {
-            return Result::err(
-                $ret,
-                [ 'The `from` should be non-empty string', $from ],
-                [ __FILE__, __LINE__ ]
-            );
+        $theType = Lib::type();
+
+        if (! $theType->string_not_empty($from)->isOk([ &$fromStringNotEmpty, &$ret ])) {
+            return Ret::throw($fallback, $ret);
         }
 
+        $driverClass = $fromStringNotEmpty;
+
         if (! is_subclass_of($driverClass, DriverInterface::class)) {
-            return Result::err(
-                $ret,
+            return Ret::throw(
+                $fallback,
                 [ 'The `from` should be subclass of: ' . DriverInterface::class, $from ],
                 [ __FILE__, __LINE__ ]
             );
@@ -122,7 +113,7 @@ class GenericDriver
         $instance->driverClass = $from;
         $instance->context = $context;
 
-        return Result::ok($ret, $instance);
+        return Ret::ok($fallback, $instance);
     }
 
 

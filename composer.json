@@ -19,7 +19,7 @@
 
     "symfony/mailer": "^5.0",
 
-    "gzhegow/lib": "~1.1.0"
+    "gzhegow/lib": "~1.2.0"
   },
   "suggest": {
     "ext-curl": "*"

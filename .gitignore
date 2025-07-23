@@ -1,9 +1,9 @@
 /.idea/
 /.editorconfig
 
-/.ignore/
-
 /vendor/
-composer.lock
+/composer.lock
+
+/.ignore/
 
 /secret.ini

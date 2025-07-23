@@ -1,14 +1,11 @@
 <?php
 
-require_once __DIR__ . '/../vendor/autoload.php';
-
-
 // > настраиваем PHP
 \Gzhegow\Lib\Lib::entrypoint()
     ->setDirRoot(__DIR__ . '/..')
-    //
-    ->useAll()
+    ->useAllDefault()
 ;
+
 
 
 // > добавляем несколько функция для тестирования
@@ -31,11 +28,11 @@ $ffn = new class {
     }
 
 
-    function test(\Closure $fn, array $args = []) : \Gzhegow\Lib\Modules\Test\Test
+    function test(\Closure $fn, array $args = []) : \Gzhegow\Lib\Modules\Test\TestCase
     {
         $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1);
 
-        return \Gzhegow\Lib\Lib::test()->newTest()
+        return \Gzhegow\Lib\Lib::test()->newTestCase()
             ->fn($fn, $args)
             ->trace($trace)
         ;
@@ -58,47 +55,48 @@ $config->configure(
         if (file_exists($iniFile = $ffn->root() . '/secret.ini')) {
             $ini = parse_ini_file($iniFile, true);
 
-            // > \Gzhegow\Mailer\Core\Driver\Email\EmailDriver::class
-            $config->emailDriver->isEnabled = true;
             // > gzhegow, 2025.01.15, это всё ещё работает, в отличие от Google, который "по соображениям безопасности" крутит как хочет
             // > 'smtps://{yourlogin}%40yandex.by:{yourpassword}@smtp.yandex.ru:465'
-            $config->emailDriver->symfonyMailerDsn = $ini[ 'emailDriver' ][ 'symfonyMailerDsn' ];
             // > '{yourlogin}@yandex.by'
-            $config->emailDriver->symfonyMailerEmailFrom = $ini[ 'emailDriver' ][ 'symfonyMailerEmailFrom' ];
+
+            // > \Gzhegow\Mailer\Core\Driver\Email\EmailDriver::class
+            $config->emailDriver->isEnabled = true;
             $config->emailDriver->isDebug = true;
-            $config->emailDriver->symfonyMailerEmailToIfDebug = $ini[ 'emailDriver' ][ 'symfonyMailerEmailToIfDebug' ];
+            $config->emailDriver->symfonyMailerDsn = $ini[ 'emailDriver' ][ 'symfonyMailerDsn' ];
+            $config->emailDriver->emailFrom = $ini[ 'emailDriver' ][ 'symfonyMailerEmailFrom' ];
+            $config->emailDriver->emailToIfDebug = $ini[ 'emailDriver' ][ 'symfonyMailerEmailToIfDebug' ];
 
             // > \Gzhegow\Mailer\Core\Driver\Social\Telegram\TelegramDriver::class
             $config->telegramDriver->isEnabled = true;
+            $config->telegramDriver->isDebug = true;
             $config->telegramDriver->telegramBotToken = $ini[ 'telegramDriver' ][ 'telegramBotToken' ];
             $config->telegramDriver->telegramBotLogin = $ini[ 'telegramDriver' ][ 'telegramBotLogin' ];
-            $config->telegramDriver->isDebug = true;
-            $config->telegramDriver->telegramChatIdIfDebug = $ini[ 'telegramDriver' ][ 'telegramChatIdIfDebug' ];
+            $config->telegramDriver->telegramChatIdToIfDebug = $ini[ 'telegramDriver' ][ 'telegramChatIdToIfDebug' ];
 
-            // // > \Gzhegow\Mailer\Core\Driver\Phone\SmsDriver::class
-            // // > todo
-            // $config->smsDriver->isEnabled = false;
-            // $config->smsDriver->isDebug = false;
+            // > \Gzhegow\Mailer\Core\Driver\Phone\SmsDriver::class
+            $config->smsDriver->isEnabled = false;
+            $config->smsDriver->isDebug = false;
+            $config->smsDriver->phoneToIfDebug = $ini[ 'smsDriver' ][ 'phoneToIfDebug' ];
 
         } else {
             // > \Gzhegow\Mailer\Core\Driver\Email\EmailDriver::class
             $config->emailDriver->isEnabled = true;
-            $config->emailDriver->symfonyMailerDsn = 'filesystem://default?directory=' . $emailDriverDir;
-            $config->emailDriver->symfonyMailerEmailFrom = 'email@example.com';
             $config->emailDriver->isDebug = true;
-            $config->emailDriver->symfonyMailerEmailToIfDebug = 'email@example.com';
+            $config->emailDriver->symfonyMailerDsn = 'filesystem://default?directory=' . $emailDriverDir;
+            $config->emailDriver->emailFrom = 'email@example.com';
+            $config->emailDriver->emailToIfDebug = 'email@example.com';
 
             // > \Gzhegow\Mailer\Core\Driver\Social\Telegram\TelegramDriver::class
             $config->telegramDriver->isEnabled = true;
+            $config->telegramDriver->isDebug = true;
             $config->telegramDriver->telegramBotToken = '0000000000:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
             $config->telegramDriver->telegramBotLogin = '{yourbot}_bot';
-            $config->telegramDriver->isDebug = true;
-            $config->telegramDriver->telegramChatIdIfDebug = '0000000000';
+            $config->telegramDriver->telegramChatIdToIfDebug = '0000000000';
 
             // // > \Gzhegow\Mailer\Core\Driver\Phone\SmsDriver::class
-            // // > todo
-            // $config->smsDriver->isEnabled = false;
-            // $config->smsDriver->isDebug = false;
+            $config->smsDriver->isEnabled = false;
+            $config->smsDriver->isDebug = false;
+            $config->smsDriver->phoneToIfDebug = '+375990000000';
         }
     }
 );
@@ -149,11 +147,14 @@ $fn = function () use (
     $ffn->print($telegramDriver);
 
     // // > отправляем сообщение по SMS (драйвер следует наследовать и реализовать с использованием собственной АТС или сервиса отсылки SMS)
-    // // > todo
-    // $text = '[ SMS ] Hello, {{name}}!';
-    // $message = $mailer->interpolateMessage($text, $placeholders);
-    // $smsDriver = $mailer->sendNowBy(\Gzhegow\Mailer\Core\Driver\Phone\SmsDriver::class, $message, $mobilePhoneFake = '+375990000000');
-    // $ffn->print($smsDriver);
+    try {
+        $text = '[ SMS ] Hello, {{name}}!';
+        $message = $mailer->interpolateMessage($text, $placeholders);
+        $smsDriver = $mailer->sendNowBy(\Gzhegow\Mailer\Core\Driver\Phone\SmsDriver::class, $message, $mobilePhoneFake = '+375990000000');
+    }
+    catch ( \Throwable $e ) {
+        $ffn->print('[ CATCH ]', $e->getMessage());
+    }
 
     // > очищаем папку перехваченных в режиме isDebug сообщений Email
     foreach ( \Gzhegow\Lib\Lib::fs()->dir_walk_it($emailDriverDir) as $spl ) {
@@ -174,5 +175,6 @@ $test->expectStdout('
 
 { object # Gzhegow\Mailer\Core\Driver\Email\EmailDriver }
 { object # Gzhegow\Mailer\Core\Driver\Social\Telegram\TelegramDriver }
+"[ CATCH ]" | "The `smsDriver` is disabled in configuration"
 ');
 $test->run();
