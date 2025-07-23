@@ -37,7 +37,7 @@ $ffn = new class {
 
     function values($separator = null, ...$values) : string
     {
-        return \Gzhegow\Lib\Lib::debug()->values([], $separator, ...$values);
+        return \Gzhegow\Lib\Lib::debug()->dump_values([], $separator, ...$values);
     }
 
 
