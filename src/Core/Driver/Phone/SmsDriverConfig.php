@@ -29,7 +29,7 @@ class SmsDriverConfig extends AbstractConfig
     protected $phoneToIfDebug;
 
 
-    public function validation(array &$refContext = []) : bool
+    public function validation(array $context = []) : bool
     {
         $isEnabled = (bool) $this->isEnabled;
         $isDebug = (bool) $this->isDebug;

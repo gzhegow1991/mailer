@@ -66,17 +66,17 @@ $config->configure(
             $config->emailDriver->emailFrom = $ini[ 'emailDriver' ][ 'symfonyMailerEmailFrom' ];
             $config->emailDriver->emailToIfDebug = $ini[ 'emailDriver' ][ 'symfonyMailerEmailToIfDebug' ];
 
+            // > \Gzhegow\Mailer\Core\Driver\Phone\SmsDriver::class
+            $config->smsDriver->isEnabled = false;
+            $config->smsDriver->isDebug = false;
+            $config->smsDriver->phoneToIfDebug = $ini[ 'smsDriver' ][ 'phoneToIfDebug' ];
+
             // > \Gzhegow\Mailer\Core\Driver\Social\Telegram\TelegramDriver::class
             $config->telegramDriver->isEnabled = true;
             $config->telegramDriver->isDebug = true;
             $config->telegramDriver->telegramBotToken = $ini[ 'telegramDriver' ][ 'telegramBotToken' ];
             $config->telegramDriver->telegramBotLogin = $ini[ 'telegramDriver' ][ 'telegramBotLogin' ];
             $config->telegramDriver->telegramChatIdToIfDebug = $ini[ 'telegramDriver' ][ 'telegramChatIdToIfDebug' ];
-
-            // > \Gzhegow\Mailer\Core\Driver\Phone\SmsDriver::class
-            $config->smsDriver->isEnabled = false;
-            $config->smsDriver->isDebug = false;
-            $config->smsDriver->phoneToIfDebug = $ini[ 'smsDriver' ][ 'phoneToIfDebug' ];
 
         } else {
             // > \Gzhegow\Mailer\Core\Driver\Email\EmailDriver::class
@@ -86,17 +86,17 @@ $config->configure(
             $config->emailDriver->emailFrom = 'email@example.com';
             $config->emailDriver->emailToIfDebug = 'email@example.com';
 
+            // // > \Gzhegow\Mailer\Core\Driver\Phone\SmsDriver::class
+            $config->smsDriver->isEnabled = false;
+            $config->smsDriver->isDebug = false;
+            $config->smsDriver->phoneToIfDebug = '+375990000000';
+
             // > \Gzhegow\Mailer\Core\Driver\Social\Telegram\TelegramDriver::class
             $config->telegramDriver->isEnabled = true;
             $config->telegramDriver->isDebug = true;
             $config->telegramDriver->telegramBotToken = '0000000000:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA';
             $config->telegramDriver->telegramBotLogin = '{yourbot}_bot';
             $config->telegramDriver->telegramChatIdToIfDebug = '0000000000';
-
-            // // > \Gzhegow\Mailer\Core\Driver\Phone\SmsDriver::class
-            $config->smsDriver->isEnabled = false;
-            $config->smsDriver->isDebug = false;
-            $config->smsDriver->phoneToIfDebug = '+375990000000';
         }
     }
 );

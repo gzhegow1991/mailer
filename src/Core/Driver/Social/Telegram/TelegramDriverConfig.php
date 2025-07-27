@@ -41,7 +41,7 @@ class TelegramDriverConfig extends AbstractConfig
     protected $telegramChatIdToIfDebug;
 
 
-    protected function validation(array &$refContext = []) : bool
+    protected function validation(array $context = []) : bool
     {
         $isEnabled = (bool) $this->isEnabled;
         $isDebug = (bool) $this->isDebug;

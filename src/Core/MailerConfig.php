@@ -10,8 +10,8 @@ use Gzhegow\Mailer\Core\Driver\Social\Telegram\TelegramDriverConfig;
 
 /**
  * @property EmailDriverConfig    $emailDriver
- * @property TelegramDriverConfig $telegramDriver
  * @property SmsDriverConfig      $smsDriver
+ * @property TelegramDriverConfig $telegramDriver
  */
 class MailerConfig extends AbstractConfig
 {
@@ -20,20 +20,20 @@ class MailerConfig extends AbstractConfig
      */
     protected $emailDriver;
     /**
-     * @var TelegramDriverConfig
-     */
-    protected $telegramDriver;
-    /**
      * @var SmsDriverConfig
      */
     protected $smsDriver;
+    /**
+     * @var TelegramDriverConfig
+     */
+    protected $telegramDriver;
 
 
     public function __construct()
     {
         $this->emailDriver = new EmailDriverConfig();
-        $this->telegramDriver = new TelegramDriverConfig();
         $this->smsDriver = new SmsDriverConfig();
+        $this->telegramDriver = new TelegramDriverConfig();
 
         parent::__construct();
     }
