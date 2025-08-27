@@ -1,7 +1,6 @@
 {
   "name": "gzhegow/mailer",
   "type": "library",
-  "version": "1.0.0",
   "license": "MIT",
 
   "authors": [
@@ -19,7 +18,7 @@
 
     "symfony/mailer": "^5.0",
 
-    "gzhegow/lib": "~1.2.0"
+    "gzhegow/lib": "~1.0.0"
   },
   "suggest": {
     "ext-curl": "*"
@@ -43,5 +42,9 @@
     "optimize-autoloader": true,
 
     "sort-packages": false
+  },
+
+  "extra": {
+    "version": "1.0.0"
   }
 }
