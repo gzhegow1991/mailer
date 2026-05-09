@@ -1,11 +1,14 @@
 <?php
+/**
+ * @noinspection PhpComposerExtensionStubsInspection
+ */
 
 namespace Gzhegow\Mailer\Core\Driver\Social\Telegram;
 
 use Gzhegow\Lib\Lib;
 use Gzhegow\Mailer\Core\Struct\GenericMessage;
-use Gzhegow\Mailer\Core\Driver\DriverInterface;
 use Gzhegow\Mailer\Exception\RuntimeException;
+use Gzhegow\Mailer\Core\Driver\DriverInterface;
 
 
 class TelegramDriver implements DriverInterface
@@ -77,13 +80,13 @@ class TelegramDriver implements DriverInterface
 
         $content = curl_exec($ch);
 
-        if (curl_errno($ch)) {
+        if ( curl_errno($ch) ) {
             throw new RuntimeException(
                 [ 'Curl error occured: ' . curl_error($ch) ], $ch
             );
         }
 
-        if (200 !== ($httpCode = curl_getinfo($ch, CURLINFO_RESPONSE_CODE))) {
+        if ( 200 !== ($httpCode = curl_getinfo($ch, CURLINFO_RESPONSE_CODE)) ) {
             throw new RuntimeException(
                 [ 'Response code is not 200: ' . $httpCode, $ch ]
             );
@@ -116,11 +119,11 @@ class TelegramDriver implements DriverInterface
 
         $content = curl_exec($ch);
 
-        if (curl_errno($ch)) {
+        if ( curl_errno($ch) ) {
             throw new RuntimeException([ 'Curl error occured: ' . curl_error($ch) ], $ch);
         }
 
-        if (200 !== ($httpCode = curl_getinfo($ch, CURLINFO_RESPONSE_CODE))) {
+        if ( 200 !== ($httpCode = curl_getinfo($ch, CURLINFO_RESPONSE_CODE)) ) {
             throw new RuntimeException([ 'Response code is not 200: ' . $httpCode, $ch ]);
         }
 

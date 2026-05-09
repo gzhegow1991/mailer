@@ -41,13 +41,17 @@ class SmsDriver implements DriverInterface
             ?? ($isDebug ? $this->config->phoneToIfDebug : null)
             ?? ($theType->phone($to)->orThrow());
 
-        if ($theType->phone_fake($phoneTo)->isOk()) {
+        $ret = $theType->phone_fake($phoneTo);
+
+        if ( $ret->isOk() ) {
             // todo
 
             return $this;
         }
 
-        if ($theType->phone_real($phoneTo, $region = '')->isOk()) {
+        $ret = $theType->phone_real($phoneTo, $region = '');
+
+        if ( $ret->isOk() ) {
             // todo
 
             return $this;

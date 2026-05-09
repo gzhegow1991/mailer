@@ -65,77 +65,82 @@ class EmailDriver implements DriverInterface
         return $this;
     }
 
+    /**
+     * @noinspection PhpDeprecationInspection
+     */
     public function sendNow(GenericMessage $message, $to = null, ?array $context = null) : DriverInterface
     {
         $isDebug = $this->config->isDebug;
 
         $symfonyEmail = new SymfonyEmail();
 
-        if (null !== $message->headers) {
+        if ( null !== $message->headers ) {
             $symfonyEmail->setHeaders($message->headers);
         }
 
-        if (null !== $message->body) {
+        if ( null !== $message->body ) {
             $symfonyEmail->setBody($message->body);
 
         } else {
-            if (null !== $message->subject) {
+            if ( null !== $message->subject ) {
                 $symfonyEmail->subject($message->subject);
             }
 
-            if (null !== $message->text) {
+            if ( null !== $message->text ) {
                 $textCharsetArgs = [];
 
-                if (null !== $message->textCharset) {
+                if ( null !== $message->textCharset ) {
                     $textCharsetArgs[] = $message->textCharset;
                 }
 
                 $symfonyEmail->text($message->text, ...$textCharsetArgs);
             }
 
-            if (null !== $message->html) {
+            if ( null !== $message->html ) {
                 $htmlCharsetArgs = [];
 
-                if (null !== $message->htmlCharset) {
+                if ( null !== $message->htmlCharset ) {
                     $htmlCharsetArgs[] = $message->htmlCharset;
                 }
 
                 $symfonyEmail->html($message->html, ...$htmlCharsetArgs);
             }
 
-            if (null !== $message->attachments) {
+            if ( null !== $message->attachments ) {
                 foreach ( $message->getAttachments() as $attachment ) {
-                    if ($attachment instanceof SymfonyDataPart) {
-                        $symfonyEmail->attachPart($attachment);
+                    if ( $attachment instanceof SymfonyDataPart ) {
+                        (method_exists($symfonyEmail, 'addPart'))
+                            ? $symfonyEmail->addPart($attachment)
+                            : $symfonyEmail->attachPart($attachment);
                     }
                 }
             }
         }
 
-        if (! $symfonyEmail->getFrom()) {
+        if ( ! $symfonyEmail->getFrom() ) {
             $mailerEmailFrom = $this->config->emailFrom;
             $mailerEmailNameFrom = $this->config->emailNameFrom;
 
             $mailerAddressFrom = null;
-            if (null !== $mailerEmailFrom) {
+            if ( null !== $mailerEmailFrom ) {
                 $mailerAddressFrom = $mailerEmailFrom;
             }
-            if (null !== $mailerEmailNameFrom) {
+            if ( null !== $mailerEmailNameFrom ) {
                 $mailerAddressFrom .= ' <' . $mailerEmailNameFrom . '>';
             }
 
-            if (null !== $mailerAddressFrom) {
+            if ( null !== $mailerAddressFrom ) {
                 $symfonyEmail->from($mailerAddressFrom);
             }
         }
 
-        if ($isDebug) {
+        if ( $isDebug ) {
             $mailerEmailTo = $this->config->emailToIfDebug;
 
             $symfonyEmail->to($mailerEmailTo);
 
         } else {
-            if (! $symfonyEmail->getTo()) {
+            if ( ! $symfonyEmail->getTo() ) {
                 $thePhp = Lib::php();
 
                 $toList = $thePhp->to_list($to);

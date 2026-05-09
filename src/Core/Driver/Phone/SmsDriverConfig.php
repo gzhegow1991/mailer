@@ -37,10 +37,10 @@ class SmsDriverConfig extends AbstractConfig
         $this->isEnabled = $isEnabled;
         $this->isDebug = $isDebug;
 
-        if ($isEnabled) {
+        if ( $isEnabled ) {
             $theType = Lib::type();
 
-            if ($isDebug) {
+            if ( $isDebug ) {
                 $theType->phone_real($this->phoneToIfDebug, $region = '')->orThrow();
             }
         }
