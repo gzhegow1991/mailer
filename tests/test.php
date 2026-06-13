@@ -1,10 +1,11 @@
 <?php
 
-// > настраиваем PHP
+define('__DIR_ROOT__', __DIR__ . '/..');
+
 \Gzhegow\Lib\Lib::entrypoint()
     ->setAllRecommended()
     //
-    ->setCustomDirRoot(__DIR__ . '/..')
+    ->setCustomDirRoot(__DIR_ROOT__)
     //
     ->useAll()
     //
@@ -12,42 +13,13 @@
 ;
 
 
-// > добавляем несколько функция для тестирования
-$ffn = new class {
-    function root() : string
-    {
-        return realpath(__DIR__ . '/..');
-    }
+$theDebug = \Gzhegow\Lib\Lib::debug();
+$theTest = \Gzhegow\Lib\Lib::test();
 
 
-    function values($separator = null, ...$values) : string
-    {
-        return \Gzhegow\Lib\Lib::debug()->dump_values([], $separator, ...$values);
-    }
+// >>> ЗАПУСК
 
-
-    function print(...$values) : void
-    {
-        echo $this->values(' | ', ...$values) . PHP_EOL;
-    }
-
-
-    function test(\Closure $fn, array $args = []) : \Gzhegow\Lib\Modules\Test\TestCase
-    {
-        $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1);
-
-        return \Gzhegow\Lib\Lib::test()->newTestCase()
-            ->fn($fn, $args)
-            ->trace($trace)
-        ;
-    }
-};
-
-
-
-// >>> ЗАПУСКАЕМ!
-
-$emailDriverDir = $ffn->root() . '/var/email';
+$emailDriverDir = __DIR_ROOT__ . '/var/email';
 
 // > сначала всегда фабрика
 $factory = new \Gzhegow\Mailer\Core\MailerFactory();
@@ -55,8 +27,8 @@ $factory = new \Gzhegow\Mailer\Core\MailerFactory();
 // > создаем конфигурацию
 $config = new \Gzhegow\Mailer\Core\MailerConfig();
 $config->configure(
-    function (\Gzhegow\Mailer\Core\MailerConfig $config) use ($ffn, $emailDriverDir) {
-        if (file_exists($iniFile = $ffn->root() . '/secret.ini')) {
+    static function (\Gzhegow\Mailer\Core\MailerConfig $config) use ($emailDriverDir) {
+        if ( file_exists($iniFile = __DIR_ROOT__ . '/secret.ini') ) {
             $ini = parse_ini_file($iniFile, true);
 
             // > gzhegow, 2025.01.15, это всё ещё работает, в отличие от Google, который "по соображениям безопасности" крутит как хочет
@@ -66,21 +38,21 @@ $config->configure(
             // > \Gzhegow\Mailer\Core\Driver\Email\EmailDriver::class
             $config->emailDriver->isEnabled = true;
             $config->emailDriver->isDebug = true;
-            $config->emailDriver->symfonyMailerDsn = $ini[ 'emailDriver' ][ 'symfonyMailerDsn' ];
-            $config->emailDriver->emailFrom = $ini[ 'emailDriver' ][ 'symfonyMailerEmailFrom' ];
-            $config->emailDriver->emailToIfDebug = $ini[ 'emailDriver' ][ 'symfonyMailerEmailToIfDebug' ];
+            $config->emailDriver->symfonyMailerDsn = $ini['emailDriver']['symfonyMailerDsn'];
+            $config->emailDriver->emailFrom = $ini['emailDriver']['symfonyMailerEmailFrom'];
+            $config->emailDriver->emailToIfDebug = $ini['emailDriver']['symfonyMailerEmailToIfDebug'];
 
             // > \Gzhegow\Mailer\Core\Driver\Phone\SmsDriver::class
             $config->smsDriver->isEnabled = false;
             $config->smsDriver->isDebug = false;
-            $config->smsDriver->phoneToIfDebug = $ini[ 'smsDriver' ][ 'phoneToIfDebug' ];
+            $config->smsDriver->phoneToIfDebug = $ini['smsDriver']['phoneToIfDebug'];
 
             // > \Gzhegow\Mailer\Core\Driver\Social\Telegram\TelegramDriver::class
             $config->telegramDriver->isEnabled = true;
             $config->telegramDriver->isDebug = true;
-            $config->telegramDriver->telegramBotToken = $ini[ 'telegramDriver' ][ 'telegramBotToken' ];
-            $config->telegramDriver->telegramBotLogin = $ini[ 'telegramDriver' ][ 'telegramBotLogin' ];
-            $config->telegramDriver->telegramChatIdToIfDebug = $ini[ 'telegramDriver' ][ 'telegramChatIdToIfDebug' ];
+            $config->telegramDriver->telegramBotToken = $ini['telegramDriver']['telegramBotToken'];
+            $config->telegramDriver->telegramBotLogin = $ini['telegramDriver']['telegramBotLogin'];
+            $config->telegramDriver->telegramChatIdToIfDebug = $ini['telegramDriver']['telegramChatIdToIfDebug'];
 
         } else {
             // > \Gzhegow\Mailer\Core\Driver\Email\EmailDriver::class
@@ -122,13 +94,11 @@ $mailer = new \Gzhegow\Mailer\Core\MailerFacade(
 // > TEST
 // > создаем дату, временную зону и интервал
 $fn = function () use (
-    $ffn,
-    //
-    $mailer,
+    $mailer, $theDebug,
     //
     $emailDriverDir
 ) {
-    $ffn->print('TEST 1');
+    $theDebug->dump_value('TEST 1');
     echo PHP_EOL;
 
     $placeholders = [
@@ -142,13 +112,13 @@ $fn = function () use (
     $symfonyEmail->html('<b>[ EMAIL ] Hello, {{name}}!</b>');
     $message = $mailer->interpolateMessage($symfonyEmail, $placeholders);
     $emailDriver = $mailer->sendNowBy(\Gzhegow\Mailer\Core\Driver\Email\EmailDriver::class, $message, $emailTo = 'email@example.com');
-    $ffn->print($emailDriver);
+    $theDebug->dump_value($emailDriver);
 
     // > отправляем сообщение в телеграм
     $text = '[ Telegram ] Hello, {{name}}!';
     $message = $mailer->interpolateMessage($text, $placeholders);
     $telegramDriver = $mailer->sendNowBy(\Gzhegow\Mailer\Core\Driver\Social\Telegram\TelegramDriver::class, $message, $telegramChatId = '0000000000');
-    $ffn->print($telegramDriver);
+    $theDebug->dump_value($telegramDriver);
 
     // // > отправляем сообщение по SMS (драйвер следует наследовать и реализовать с использованием собственной АТС или сервиса отсылки SMS)
     try {
@@ -157,12 +127,12 @@ $fn = function () use (
         $smsDriver = $mailer->sendNowBy(\Gzhegow\Mailer\Core\Driver\Phone\SmsDriver::class, $message, $mobilePhoneFake = '+375990000000');
     }
     catch ( \Throwable $e ) {
-        $ffn->print('[ CATCH ]', $e->getMessage());
+        $theDebug->dump_all_value([ '[ CATCH ]', $e->getMessage() ]);
     }
 
     // > очищаем папку перехваченных в режиме isDebug сообщений Email
     foreach ( \Gzhegow\Lib\Lib::fs()->dir_walk_it($emailDriverDir) as $spl ) {
-        if ($spl->getFilename() === '.gitignore') {
+        if ( $spl->getFilename() === '.gitignore' ) {
             continue;
         }
 
@@ -173,7 +143,7 @@ $fn = function () use (
             : rmdir($realpath);
     }
 };
-$test = $ffn->test($fn);
+$test = $theTest->newCase($fn);
 $test->expectStdout('
 "TEST 1"
 
